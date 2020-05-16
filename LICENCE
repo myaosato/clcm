@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---
 
-the test data file (test/spec.json) is derived from https://spec.commonmark.org/
+The test data file (test/spec.json) is derived from https://spec.commonmark.org/
 
 Copyright (C) 2014-16 John MacFarlane
 
