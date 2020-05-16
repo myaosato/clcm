@@ -23,10 +23,7 @@
       (interprets-inlines)))
 
 (defun tree->html (tree)
-  ;; TODO
-  (declare (ignore tree))
-  ;;(->html (root tree))
-  "")
+  (->html (root tree)))
 
 ;; tree
 (defclass block-tree ()
@@ -63,5 +60,5 @@
 
 ;; parse inlines
 (defun interprets-inlines (tree)
-  (let ((root (root tree)))
-    (parses-inlines root)))
+  (parses-inlines (root tree))
+  tree)

@@ -1,9 +1,11 @@
 (defpackage :clcm/node
   (:use :cl)
   (:export :node
+           :is-open
+           :indent-level
+           :children
            :close!?
            :add!?
-           :is-open
            :parses-inlines
            :->html
            :close-node
@@ -22,7 +24,7 @@
 (defgeneric ->html (node))
 
 (defmethod parses-inlines ((node node))
-  (setf (node children) (reverse (node children)))
+  (setf (children node) (reverse (children node)))
   node)
 
 (defun close-node (node)

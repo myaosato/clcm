@@ -14,3 +14,6 @@
 
 (defmethod add!? ((node paragraph-node) line)
   (add-child node line))
+
+(defmethod ->html ((node paragraph-node))
+  (format nil "<p>~{~A~^~%~}</p>~%" (children node)))

@@ -19,3 +19,7 @@
         (t
          (add-child node (make-instance 'paragraph-node))
          (add!? (last-child node) line))))
+
+(defmethod ->html ((node document-node))
+  (format nil "~{~A~}"
+               (mapcar #'->html (children node))))
