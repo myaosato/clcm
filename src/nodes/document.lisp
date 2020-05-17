@@ -22,7 +22,7 @@
   (cond ((is-blank-line line)
          nil)
         ((is-thematic-break-line line)
-         (add-child node (make-instance 'thematic-break-node)))
+         (add-child node (make-instance 'thematic-break-node :is-open nil)))
         (t
          (add-child node (make-instance 'paragraph-node))
          (add!? (last-child node) line))))
