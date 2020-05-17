@@ -3,7 +3,8 @@
   (:import-from :cl-ppcre
                 :scan)
   (:export :string->lines
-           :is-blank-line))
+           :is-blank-line
+           :is-thematic-break-line))
 (in-package :clcm/line)
 
 (defun string->lines (input)
@@ -33,3 +34,8 @@
           (:greedy-repetition 0 nil (:alternation ,(code-char #x20) ,(code-char #x09)))
           :end-anchor)
         line))
+
+(defun is-thematic-break-line (line)
+  (or (scan "^ {0,3}(?:\\*\\s*){3,}$" line)
+      (scan "^ {0,3}(?:_\\s*){3,}$" line)
+      (scan "^ {0,3}(?:-\\s*){3,}$" line)))

@@ -17,7 +17,7 @@
         (err-cases nil))
     (loop :for test-case :in test-data
           :for ind :from 0 :to (1- (length test-data))
-          :for result := (progn
+          :for result := (ignore-errors
                            (if (string= (cdr (assoc :html test-case))
                                         (cm->html (cdr (assoc :markdown test-case))))
                                (push test-case ok-cases)

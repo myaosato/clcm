@@ -4,7 +4,7 @@
   :license "mit"
   :author "miyao satoaki"
   :pathname "src/"
-  :in-order-to ((test-op (test-op "clcm/test/main"))))
+  :in-order-to ((test-op (test-op "clcm/test"))))
 
 
 (defsystem "clcm/test"

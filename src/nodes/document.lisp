@@ -1,7 +1,12 @@
 (defpackage :clcm/nodes/document
   (:use :cl :clcm/node)
+  (:import-from :cl-ppcre
+                :scan)
   (:import-from :clcm/line
-                :is-blank-line)
+                :is-blank-line
+                :is-thematic-break-line)
+  (:import-from :clcm/nodes/thematic-break
+                :thematic-break-node)
   (:import-from :clcm/nodes/paragraph
                 :paragraph-node)
   (:export :document-node))
@@ -16,6 +21,8 @@
 (defmethod add!? ((node document-node) line)
   (cond ((is-blank-line line)
          nil)
+        ((is-thematic-break-line line)
+         (add-child node (make-instance 'thematic-break-node)))
         (t
          (add-child node (make-instance 'paragraph-node))
          (add!? (last-child node) line))))
