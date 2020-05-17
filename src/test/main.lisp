@@ -11,12 +11,13 @@
                                           (system-source-directory "clcm")))
 
 (defun test ()
-  (let ((test-data (decode-json-from-source *spec-json-file*))
-        (ok-cases nil)
-        (ng-cases nil)
-        (err-cases nil))
+  (let* ((test-data (decode-json-from-source *spec-json-file*))
+         (ok-cases nil)
+         (ng-cases nil)
+         (err-cases nil)
+         (number-of-case (length test-data)))
     (loop :for test-case :in test-data
-          :for ind :from 0 :to (1- (length test-data))
+          :for ind :from 0 :to (1- number-of-case)
           :for result := (ignore-errors
                            (if (string= (cdr (assoc :html test-case))
                                         (cm->html (cdr (assoc :markdown test-case))))
@@ -25,7 +26,10 @@
           :unless result
           :do (push test-case err-cases))
     ;; TODO inform more detail
-    (format t "OK: ~A, NG: ~A, ERR: ~A" (length ok-cases) (length ng-cases) (length err-cases))))
+    (format t "OK: ~A/~A, NG: ~A/~A, ERR: ~A/~A" 
+            (length ok-cases) number-of-case
+            (length ng-cases) number-of-case
+            (length err-cases) number-of-case)))
 
 (defun test-for (num)
   (let* ((test-data (decode-json-from-source *spec-json-file*))
