@@ -12,24 +12,27 @@
 
 (defun test ()
   (let* ((test-data (decode-json-from-source *spec-json-file*))
-         (ok-cases nil)
-         (ng-cases nil)
-         (err-cases nil)
+         (sections nil)
          (number-of-case (length test-data)))
     (loop :for test-case :in test-data
           :for ind :from 0 :to (1- number-of-case)
-          :for result := (ignore-errors
-                           (if (string= (cdr (assoc :html test-case))
-                                        (cm->html (cdr (assoc :markdown test-case))))
-                               (push test-case ok-cases)
-                               (push test-case ng-cases)))
-          :unless result
-          :do (push test-case err-cases))
+          ; separate for each sections
+          :unless (equal (caar sections) (cdr (assoc :section test-case)))
+          :do (setf sections (cons (list (cdr (assoc :section test-case)) 0 0) sections))
+          :end
+          ; test     
+          :if (string= (cdr (assoc :html test-case))
+                       (cm->html (cdr (assoc :markdown test-case))))
+          :do (incf (second (car sections)))
+          :end
+          :do (incf (third (car sections))))
     ;; TODO inform more detail
-    (format t "OK: ~A/~A, NG: ~A/~A, ERR: ~A/~A" 
-            (length ok-cases) number-of-case
-            (length ng-cases) number-of-case
-            (length err-cases) number-of-case)))
+    (loop :for result :in (reverse sections)
+          :do (format t "~{~A:~42T~A~46T/ ~A~%~}" result))
+    (format t 
+            "~%TOTAL:~42T~A~46T/ ~A test cases~%"
+            (reduce (lambda (acc elt) (+ acc (cadr elt))) sections :initial-value 0)
+            number-of-case)))
 
 (defun test-for (num)
   (let* ((test-data (decode-json-from-source *spec-json-file*))
