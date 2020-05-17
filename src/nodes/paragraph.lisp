@@ -16,4 +16,4 @@
   (add-child node line))
 
 (defmethod ->html ((node paragraph-node))
-  (format nil "<p>~{~A~^~%~}</p>~%" (children node)))
+  (format nil "<p>~{~A~^~%~}</p>~%" (reverse (children node))))
