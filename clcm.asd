@@ -6,7 +6,6 @@
   :pathname "src/"
   :in-order-to ((test-op (test-op "clcm/test"))))
 
-
 (defsystem "clcm/test"
   :depends-on ("cl-json" "clcm/test/main")
   :license "mit"

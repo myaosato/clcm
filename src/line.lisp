@@ -5,8 +5,11 @@
   (:export :string->lines
            :is-blank-line
            :is-thematic-break-line
-           :is-atx-heading-line))
+           :is-atx-heading-line
+           :*white-space-characters*))
 (in-package :clcm/line)
+
+(defvar *white-space-characters* (mapcar #'code-char '(#x20 #x09 #x0A #x0B #x0C #x0D)))
 
 (defun string->lines (input)
   (lines input 0 nil))

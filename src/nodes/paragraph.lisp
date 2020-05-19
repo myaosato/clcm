@@ -2,7 +2,8 @@
   (:use :cl :clcm/node)
   (:import-from :clcm/line
                 :is-blank-line
-                :is-atx-heading-line)
+                :is-atx-heading-line
+                :*white-space-characters*)
   (:export :paragraph-node))
 (in-package :clcm/nodes/paragraph)
 
@@ -15,7 +16,7 @@
     (close-node node)))
 
 (defmethod add!? ((node paragraph-node) line)
-  (add-child node line))
+  (add-child node (string-trim *white-space-characters* line)))
 
 (defmethod ->html ((node paragraph-node))
   (format nil "<p>~{~A~^~%~}</p>~%" (reverse (children node))))
