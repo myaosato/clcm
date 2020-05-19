@@ -1,7 +1,8 @@
 (defpackage :clcm/nodes/paragraph
   (:use :cl :clcm/node)
   (:import-from :clcm/line
-                :is-blank-line)
+                :is-blank-line
+                :is-atx-heading-line)
   (:export :paragraph-node))
 (in-package :clcm/nodes/paragraph)
 
@@ -9,7 +10,8 @@
   ())
 
 (defmethod close!? ((node paragraph-node) line)
-  (when (is-blank-line line)
+  (when (or (is-blank-line line)
+            (is-atx-heading-line line))
     (close-node node)))
 
 (defmethod add!? ((node paragraph-node) line)

@@ -4,7 +4,8 @@
                 :scan)
   (:export :string->lines
            :is-blank-line
-           :is-thematic-break-line))
+           :is-thematic-break-line
+           :is-atx-heading-line))
 (in-package :clcm/line)
 
 (defun string->lines (input)
@@ -39,3 +40,6 @@
   (or (scan "^ {0,3}(?:\\*\\s*){3,}$" line)
       (scan "^ {0,3}(?:_\\s*){3,}$" line)
       (scan "^ {0,3}(?:-\\s*){3,}$" line)))
+
+(defun is-atx-heading-line (line)
+  (scan "^ {0,3}#{1,6}(\\t| |$)" line))

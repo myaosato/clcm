@@ -4,7 +4,10 @@
                 :scan)
   (:import-from :clcm/line
                 :is-blank-line
-                :is-thematic-break-line)
+                :is-thematic-break-line
+                :is-atx-heading-line)
+  (:import-from :clcm/nodes/atx-heading
+                :atx-heading-node)
   (:import-from :clcm/nodes/thematic-break
                 :thematic-break-node)
   (:import-from :clcm/nodes/paragraph
@@ -21,6 +24,9 @@
 (defmethod add!? ((node document-node) line)
   (cond ((is-blank-line line)
          nil)
+        ((is-atx-heading-line line)
+         (add-child node (make-instance 'atx-heading-node :is-open nil))
+         (add!? (last-child node) line))
         ((is-thematic-break-line line)
          (add-child node (make-instance 'thematic-break-node :is-open nil)))
         (t

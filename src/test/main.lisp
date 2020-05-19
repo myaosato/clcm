@@ -1,10 +1,12 @@
 (defpackage :clcm/test/main
-  (:use :cl) 
+  (:use :cl)
+  (:nicknames :clcm/test)
   (:shadow)
   (:import-from :clcm/clcm :cm->html)
   (:import-from :asdf :system-source-directory)
   (:import-from :cl-json :decode-json-from-source)
-  (:export :test))
+  (:export :test
+           :test-for))
 (in-package :clcm/test/main)
 
 (defvar *spec-json-file* (merge-pathnames "spec.json"
