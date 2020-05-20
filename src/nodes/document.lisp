@@ -35,4 +35,4 @@
 
 (defmethod ->html ((node document-node))
   (format nil "~{~A~}"
-               (mapcar #'->html (children node))))
+          (mapcar #'->html (children node))))

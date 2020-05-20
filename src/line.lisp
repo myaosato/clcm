@@ -46,3 +46,9 @@
 
 (defun is-atx-heading-line (line)
   (scan "^ {0,3}#{1,6}(\\t| |$)" line))
+
+(defun is-setext-heading-level-1-line (line)
+  (scan "^ {0,3}=+\\s*" line))
+
+(defun is-setext-heading-level-2-line (line)
+  (scan "^ {0,3}-+\\s*" line))
