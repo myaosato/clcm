@@ -5,11 +5,14 @@
   (:import-from :clcm/line
                 :is-blank-line
                 :is-thematic-break-line
-                :is-atx-heading-line)
+                :is-atx-heading-line
+                :is-indented-code-block-line)
   (:import-from :clcm/nodes/atx-heading
                 :atx-heading-node)
   (:import-from :clcm/nodes/thematic-break
                 :thematic-break-node)
+  (:import-from :clcm/nodes/indented-code-block
+                :indented-code-block-node)
   (:import-from :clcm/nodes/paragraph
                 :paragraph-node)
   (:export :document-node))
@@ -29,6 +32,9 @@
          (add!? (last-child node) line))
         ((is-thematic-break-line line)
          (add-child node (make-instance 'thematic-break-node :is-open nil)))
+        ((is-indented-code-block-line line)
+         (add-child node (make-instance 'indented-code-block-node))
+         (add!? (last-child node) line))
         (t
          (add-child node (make-instance 'paragraph-node))
          (add!? (last-child node) line))))

@@ -6,6 +6,10 @@
            :is-blank-line
            :is-thematic-break-line
            :is-atx-heading-line
+           :is-setext-heading-level-1-line
+           :is-setext-heading-level-2-line
+           :is-indented-code-block-line
+           :is-indented-code-block-close-line
            :*white-space-characters*))
 (in-package :clcm/line)
 
@@ -52,3 +56,9 @@
 
 (defun is-setext-heading-level-2-line (line)
   (scan "^ {0,3}-+\\s*" line))
+
+(defun is-indented-code-block-line (line)
+  (scan "^(?: {0,3}\\t|    )" line))
+
+(defun is-indented-code-block-close-line (line)
+  (scan "^ {0,3}\\S" line))
