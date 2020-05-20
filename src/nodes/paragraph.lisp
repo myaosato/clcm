@@ -2,6 +2,7 @@
   (:use :cl :clcm/node)
   (:import-from :clcm/line
                 :is-blank-line
+                :is-thematic-break-line
                 :is-atx-heading-line
                 :is-setext-heading-level-1-line
                 :is-setext-heading-level-2-line
@@ -17,6 +18,8 @@
 
 (defmethod close!? ((node paragraph-node) line)
   (when (or (is-blank-line line)
+            (and (not (is-setext-heading-level-2-line line))
+                 (is-thematic-break-line line))
             (is-atx-heading-line line))
     (close-node node)))
 
