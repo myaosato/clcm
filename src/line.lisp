@@ -1,7 +1,8 @@
 (defpackage :clcm/line
   (:use :cl)
   (:import-from :cl-ppcre
-                :scan)
+                :scan
+                :scan-to-strings)
   (:export :string->lines
            :is-blank-line
            :is-thematic-break-line
@@ -10,6 +11,8 @@
            :is-setext-heading-level-2-line
            :is-indented-code-block-line
            :is-indented-code-block-close-line
+           :is-backtick-fenced-code-block-line
+           :is-tilde-fenced-code-block-line
            :*white-space-characters*))
 (in-package :clcm/line)
 
@@ -62,3 +65,9 @@
 
 (defun is-indented-code-block-close-line (line)
   (scan "^ {0,3}\\S" line))
+
+(defun is-backtick-fenced-code-block-line (line)
+  (scan-to-strings "^( {0,3})(`{3,})\\s*([^`\\s]*)(?:\\s[^`]*)?$" line))
+
+(defun is-tilde-fenced-code-block-line (line)
+  (scan-to-strings "^( {0,3})(~{3,})\\s*([^\\s]*)(?:\\s.*)?$" line))

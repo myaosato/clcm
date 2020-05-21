@@ -6,6 +6,8 @@
                 :is-atx-heading-line
                 :is-setext-heading-level-1-line
                 :is-setext-heading-level-2-line
+                :is-backtick-fenced-code-block-line
+                :is-tilde-fenced-code-block-line
                 :*white-space-characters*)
   (:import-from :clcm/nodes/setext-heading
                 :setext-heading-node
@@ -20,7 +22,9 @@
   (when (or (is-blank-line line)
             (and (not (is-setext-heading-level-2-line line))
                  (is-thematic-break-line line))
-            (is-atx-heading-line line))
+            (is-atx-heading-line line)
+            (is-backtick-fenced-code-block-line line)
+            (is-tilde-fenced-code-block-line line))
     (close-node node)))
 
 (defmethod add!? ((node paragraph-node) line)

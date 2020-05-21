@@ -6,7 +6,8 @@
   (:import-from :asdf :system-source-directory)
   (:import-from :cl-json :decode-json-from-source)
   (:export :test
-           :test-for))
+           :test-for
+           :test-range))
 (in-package :clcm/test/main)
 
 (defvar *spec-json-file* (merge-pathnames "spec.json"
@@ -41,5 +42,11 @@
          (test-case (nth (1- num) test-data)))
     (if (string= (cdr (assoc :html test-case))
                  (cm->html (cdr (assoc :markdown test-case))))
-        (format t "OK~%")
-        (format t "NG~%~A~%" (cm->html (cdr (assoc :markdown test-case)))))))
+        (values t (format nil "OK~%"))
+        (values nil (format nil "NG~%~A~%" (cm->html (cdr (assoc :markdown test-case))))))))
+
+(defun test-range (start end)
+  (loop :for ind :from start :to end
+        :do (multiple-value-bind (res disp) (clcm/test:test-for ind)
+              (unless res
+                (format t "~A:~%~A~%~%" ind disp)))))
