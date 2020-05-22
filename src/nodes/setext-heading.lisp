@@ -13,4 +13,9 @@
   nil)
 
 (defmethod ->html ((node setext-heading-node))
-  (format nil "<h~A>~{~A~^~%~}</h~A>~%" (heading-level node) (reverse (children node)) (heading-level node)))
+  (let ((content (format nil "~{~A~^~%~}" (reverse (children node)))))
+    (format nil
+            "<h~A>~A</h~A>~%"
+            (heading-level node)
+            content
+            (heading-level node))))

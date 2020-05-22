@@ -27,11 +27,14 @@
         (add-child node content))))
 
 (defmethod ->html ((node indented-code-block-node))
-  (let ((content (-> (children node)
-                     (trim-left-blank-line)
-                     (reverse)
-                     (trim-left-blank-line))))
-  (format nil "<pre><code>~{~A~%~}</code></pre>~%" content)))
+  (let ((content (make-content node)))
+  (format nil "<pre><code>~A</code></pre>~%" content)))
+
+(defun make-content (node)
+  (format nil "~{~A~%~}" (-> (children node)
+                             (trim-left-blank-line)
+                             (reverse)
+                             (trim-left-blank-line))))
 
 (defun trim-left-blank-line (list)
   (cond ((null list)

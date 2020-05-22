@@ -42,5 +42,9 @@
        (length)))
 
 (defmethod ->html ((node atx-heading-node))
-  (format nil "<h~A>~A</h~A>~%" (heading-level node) (first (children node)) (heading-level node)))
-
+  (let ((content (first (children node))))
+    (format nil
+            "<h~A>~A</h~A>~%"
+            (heading-level node)
+            content
+            (heading-level node))))
