@@ -14,7 +14,7 @@ Common Lisp CommonMark
 [x] Setext headings
 [x] Indented code blocks
 [x] Fenced code blocks
-[ ] HTML blocks
+[x] HTML blocks
 [ ] Link reference definitions
 [x] Paragraphs
 [x] Blank lines
