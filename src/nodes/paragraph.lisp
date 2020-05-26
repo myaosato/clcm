@@ -8,6 +8,12 @@
                 :is-setext-heading-level-2-line
                 :is-backtick-fenced-code-block-line
                 :is-tilde-fenced-code-block-line
+                :is-html-block-type-1-start-line
+                :is-html-block-type-2-start-line
+                :is-html-block-type-3-start-line
+                :is-html-block-type-4-start-line
+                :is-html-block-type-5-start-line
+                :is-html-block-type-6-start-line
                 :*white-space-characters*)
   (:import-from :clcm/nodes/setext-heading
                 :setext-heading-node
@@ -24,7 +30,13 @@
                  (is-thematic-break-line line))
             (is-atx-heading-line line)
             (is-backtick-fenced-code-block-line line)
-            (is-tilde-fenced-code-block-line line))
+            (is-tilde-fenced-code-block-line line)
+            (is-html-block-type-1-start-line line)
+            (is-html-block-type-2-start-line line)
+            (is-html-block-type-3-start-line line)
+            (is-html-block-type-4-start-line line)
+            (is-html-block-type-5-start-line line)
+            (is-html-block-type-6-start-line line))
     (close-node node)))
 
 (defmethod add!? ((node paragraph-node) line)
