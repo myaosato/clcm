@@ -32,10 +32,13 @@
     ;; TODO inform more detail
     (loop :for result :in (reverse sections)
           :do (format t "~{~A:~42T~A~46T/ ~A~%~}" result))
-    (format t 
-            "~%TOTAL:~42T~A~46T/ ~A test cases~%"
-            (reduce (lambda (acc elt) (+ acc (cadr elt))) sections :initial-value 0)
-            number-of-case)))
+    (let ((passed (reduce (lambda (acc elt) (+ acc (cadr elt))) sections :initial-value 0))
+          (total number-of-case))
+      (format t 
+              "~%TOTAL:~42T~A~46T/ ~A test cases (~,2F%)~%"
+              passed
+              total
+              (/ passed total)))))
 
 (defun test-for (num)
   (let* ((test-data (decode-json-from-source *spec-json-file*))
