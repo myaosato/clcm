@@ -23,9 +23,11 @@
            :is-html-block-type-5-start-line
            :is-html-block-type-6-start-line
            :is-html-block-type-7-start-line
+           :is-block-quote-line
            :*white-space-characters*))
 (in-package :clcm/line)
 
+;; utils
 (defvar *white-space-characters* (mapcar #'code-char '(#x20 #x09 #x0A #x0B #x0C #x0D)))
 
 (defun string->lines (input)
@@ -49,6 +51,9 @@
                  (lines input (1+ pos) (cons (buf->line buf) output))))
             (t (line input (1+ pos) output (cons char buf)))))))
 
+;; blocks ;;
+
+;; blank line
 (defun is-blank-line (line)
   (scan `(:sequence 
           :start-anchor
@@ -135,4 +140,12 @@
 (defun is-html-block-type-7-start-line (line)
   (scan *html-block-type-7-regex* line))
 
-;;
+;; block quote
+(defvar *block-quote-marker*
+  `(:sequence
+    :start-anchor
+    (:greedy-repetition 0 3 " ")
+    ">"))
+
+(defun is-block-quote-line (line)
+  (scan *block-quote-marker* line))

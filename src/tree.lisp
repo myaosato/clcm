@@ -12,6 +12,10 @@
                 :last-child)
   (:import-from :clcm/nodes/document
                 :document-node)
+  (:import-from :clcm/nodes/block-quote
+                :block-quote-node)
+  (:import-from :clcm/nodes/block-quote-methods
+                :trim-block-quote-marker)
   (:export :make-tree
            :tree->html))
 (in-package :clcm/tree)
@@ -47,16 +51,21 @@
 (defun close (node line)
   (when (typep node 'node)
     (close!? node line)
-    (close (last-child node) line)))
+    (cond ((typep node 'block-quote-node) ;; trim marker from line for children of block quote
+           (close (last-child node) (trim-block-quote-marker line)))
+          (t (close (last-child node) line)))))
 
 (defun add (node line)
   (declare (type node node))
   (let ((last-child (last-child node)))
-    (if (and last-child
-             (typep last-child 'node)
-             (is-open last-child))
-        (add last-child line)
-        (add!? node line))))
+    (cond ((and last-child
+                (typep last-child 'node)
+                (is-open last-child))
+           ;; trim marker from line for children of block quote
+           (if (typep node 'block-quote-node)
+               (add last-child (trim-block-quote-marker line))
+               (add last-child line)))
+          (t (add!? node line)))))
 
 ;; parse inlines
 (defun interprets-inlines (tree)
