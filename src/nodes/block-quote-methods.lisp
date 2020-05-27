@@ -46,20 +46,23 @@
       (is-html-block-type-3-start-line line)
       (is-html-block-type-4-start-line line)
       (is-html-block-type-5-start-line line)
-      (is-html-block-type-6-start-line line)))
-
-(defmethod close!? ((node block-quote-node) line)
-  (cond ((not (or (typep (last-child node) 'paragraph-node) (is-block-quote-line line)))
-         (close-node node))
-        ((and (typep (last-child node) 'paragraph-node) (close-paragraph-line line))
-         (close-node (last-child node))
-         (close-node node))))
+      (is-html-block-type-6-start-line line)
+      (is-block-quote-line line)))
 
 (defun trim-block-quote-marker (line)
   (multiple-value-bind (has-marker content) (scan-to-strings "^ {0,3}> ?(.*)$" line)
     (if has-marker
         (aref content 0)
         line)))
+
+(defmethod close!? ((node block-quote-node) line)
+  (cond ((not (or (typep (last-child node) 'paragraph-node) (is-block-quote-line line)))
+         (close-node node))
+        ((and (typep (last-child node) 'paragraph-node)
+              (close-paragraph-line (trim-block-quote-marker line)))
+         (close-node (last-child node))
+         (unless (is-block-quote-line line)
+           (close-node node)))))
 
 (defmethod add!? ((node block-quote-node) line)
   (let ((line (trim-block-quote-marker line)))

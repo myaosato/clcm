@@ -14,6 +14,7 @@
                 :is-html-block-type-4-start-line
                 :is-html-block-type-5-start-line
                 :is-html-block-type-6-start-line
+                :is-block-quote-line
                 :*white-space-characters*)
   (:import-from :clcm/nodes/setext-heading
                 :setext-heading-node
@@ -36,7 +37,8 @@
       (is-html-block-type-3-start-line line)
       (is-html-block-type-4-start-line line)
       (is-html-block-type-5-start-line line)
-      (is-html-block-type-6-start-line line)))
+      (is-html-block-type-6-start-line line)
+      (is-block-quote-line line)))
 
 (defmethod close!? ((node paragraph-node) line)
   (when (close-paragraph-line line)
