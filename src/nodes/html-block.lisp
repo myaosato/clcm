@@ -27,5 +27,5 @@
       (close-node node)))
 
 (defmethod ->html ((node html-block-node))
-  (let ((content (format nil "~{~A~^~%~}" (reverse (children node)))))
+  (let ((content (format nil "~{~A~^~%~}" (children node))))
     (format nil "~A~%" content)))

@@ -25,6 +25,9 @@
 
 (defmethod parses-inlines ((node node))
   (setf (children node) (reverse (children node)))
+  (loop :for child :in (children node)
+        :if (typep child 'node)
+        :do (parses-inlines child))
   node)
 
 (defun close-node (node)

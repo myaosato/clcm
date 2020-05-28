@@ -57,5 +57,5 @@
          (add-child node (string-trim *white-space-characters* line)))))
 
 (defmethod ->html ((node paragraph-node))
-  (let ((content (format nil "~{~A~^~%~}" (reverse (children node)))))
+  (let ((content (format nil "~{~A~^~%~}" (children node))))
     (format nil "<p>~A</p>~%" content)))

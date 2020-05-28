@@ -109,4 +109,4 @@
 
 (defmethod ->html ((node block-quote-node))
   (format nil "<blockquote>~%~{~A~}</blockquote>~%"
-          (mapcar #'->html (reverse (children node)))))
+          (mapcar #'->html (children node))))

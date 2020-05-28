@@ -37,7 +37,7 @@
         (t (add-child node (trim-left-space-max-n line (code-fence-indent node))))))
 
 (defmethod ->html ((node fenced-code-block-node))
-  (let ((content (format nil "~{~A~%~}" (reverse (children node)))))
+  (let ((content (format nil "~{~A~%~}" (children node))))
     (format nil
             "<pre><code~A>~A</code></pre>~%"
             (if (string/= (info-string node) "")

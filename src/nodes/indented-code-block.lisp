@@ -32,6 +32,7 @@
 
 (defun make-content (node)
   (format nil "~{~A~%~}" (-> (children node)
+                             (reverse)
                              (trim-left-blank-line)
                              (reverse)
                              (trim-left-blank-line))))
