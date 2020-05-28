@@ -44,28 +44,9 @@
     tree))
 
 (defun consumes-line (tree line)
-  (close (root tree) line) ;; side effects !!
-  (add (root tree) line) ;; side effects !!
+  (close!? (root tree) line) ;; side effects !!
+  (add!? (root tree) line) ;; side effects !!
   tree)
-
-(defun close (node line)
-  (when (typep node 'node)
-    (close!? node line)
-    (cond ((typep node 'block-quote-node) ;; trim marker from line for children of block quote
-           (close (last-child node) (trim-block-quote-marker line)))
-          (t (close (last-child node) line)))))
-
-(defun add (node line)
-  (declare (type node node))
-  (let ((last-child (last-child node)))
-    (cond ((and last-child
-                (typep last-child 'node)
-                (is-open last-child))
-           ;; trim marker from line for children of block quote
-           (if (typep node 'block-quote-node)
-               (add last-child (trim-block-quote-marker line))
-               (add last-child line)))
-          (t (add!? node line)))))
 
 ;; parse inlines
 (defun interprets-inlines (tree)

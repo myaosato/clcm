@@ -55,7 +55,7 @@
         (aref content 0)
         line)))
 
-(defmethod close!? ((node block-quote-node) line)
+(defun _close!? (node line)
   (cond ((not (or (typep (last-child node) 'paragraph-node) (is-block-quote-line line)))
          (close-node node))
         ((and (typep (last-child node) 'paragraph-node)
@@ -64,7 +64,13 @@
          (unless (is-block-quote-line line)
            (close-node node)))))
 
-(defmethod add!? ((node block-quote-node) line)
+(defmethod close!? :around ((node block-quote-node) line)
+  (_close!? node line)
+  (when (and (typep (last-child node) 'node)
+             (is-open (last-child node)))
+    (close!? (last-child node) (trim-block-quote-marker line))))
+
+(defun _add!? (node line)
   (let ((line (trim-block-quote-marker line)))
     (cond ((is-blank-line line)
            nil)
@@ -106,6 +112,14 @@
           (t
            (add-child node (make-instance 'paragraph-node))
            (add!? (last-child node) line)))))
+
+(defmethod add!? :around ((node block-quote-node) line)
+  (let ((last-child (last-child node)))
+    (if (and last-child
+             (typep last-child 'node)
+             (is-open last-child))
+        (add!? last-child (trim-block-quote-marker line))
+        (_add!? node line))))
 
 (defmethod ->html ((node block-quote-node))
   (format nil "<blockquote>~%~{~A~}</blockquote>~%"
