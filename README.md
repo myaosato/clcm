@@ -6,6 +6,8 @@ Common Lisp CommonMark
 
 ## TODO
 
+### Blocks
+
 - [x] Tabs
 - [x] Precedence
 - [x] Thematic breaks
@@ -20,7 +22,9 @@ Common Lisp CommonMark
 - [x] Block quotes
 - [ ] List items
 - [ ] Lists
-- [ ] Inlines
+
+### Inlines
+
 - [ ] Backslash escapes
 - [ ] Entity and numeric character references
 - [ ] Code spans
