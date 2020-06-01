@@ -1,6 +1,9 @@
 (defpackage :clcm/nodes/setext-heading
   (:use :cl :clcm/node)
-  (:export :setext-heading-node))
+  (:export :setext-heading-node
+           :heading-level
+           :is-setext-heading-level-1-line
+           :is-setext-heading-level-2-line))
 (in-package :clcm/nodes/setext-heading)
 
 (defclass setext-heading-node (node)
@@ -19,3 +22,11 @@
             (heading-level node)
             content
             (heading-level node))))
+
+
+;;
+(defun is-setext-heading-level-1-line (line)
+  (scan "^ {0,3}=+\\s*" line))
+
+(defun is-setext-heading-level-2-line (line)
+  (scan "^ {0,3}-+\\s*" line))

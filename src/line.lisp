@@ -8,8 +8,6 @@
                 :*closing-tag*)
   (:export :string->lines
            :is-blank-line
-           :is-setext-heading-level-1-line
-           :is-setext-heading-level-2-line
            :is-indented-code-block-line
            :is-indented-code-block-close-line
            :is-backtick-fenced-code-block-line
@@ -58,13 +56,6 @@
           (:greedy-repetition 0 nil (:alternation ,(code-char #x20) ,(code-char #x09)))
           :end-anchor)
         line))
-
-;; setext heading
-(defun is-setext-heading-level-1-line (line)
-  (scan "^ {0,3}=+\\s*" line))
-
-(defun is-setext-heading-level-2-line (line)
-  (scan "^ {0,3}-+\\s*" line))
 
 ;; indented code block
 (defun is-indented-code-block-line (line)

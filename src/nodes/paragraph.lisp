@@ -2,11 +2,10 @@
   (:use :cl
         :clcm/node
         :clcm/nodes/thematic-break
-        :clcm/nodes/atx-heading)
+        :clcm/nodes/atx-heading
+        :clcm/nodes/setext-heading)
   (:import-from :clcm/line
                 :is-blank-line
-                :is-setext-heading-level-1-line
-                :is-setext-heading-level-2-line
                 :is-backtick-fenced-code-block-line
                 :is-tilde-fenced-code-block-line
                 :is-html-block-type-1-start-line
@@ -17,9 +16,6 @@
                 :is-html-block-type-6-start-line
                 :is-block-quote-line
                 :*white-space-characters*)
-  (:import-from :clcm/nodes/setext-heading
-                :setext-heading-node
-                :heading-level)
   (:export :paragraph-node))
 (in-package :clcm/nodes/paragraph)
 
