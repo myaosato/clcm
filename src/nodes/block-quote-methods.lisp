@@ -64,6 +64,9 @@
          (unless (is-block-quote-line line)
            (close-node node)))))
 
+(defmethod close!? ((node block-quote-node) line)
+  node)
+
 (defmethod close!? :around ((node block-quote-node) line)
   (_close!? node line)
   (when (and (typep (last-child node) 'node)
@@ -112,6 +115,9 @@
           (t
            (add-child node (make-instance 'paragraph-node))
            (add!? (last-child node) line)))))
+
+(defmethod add!? ((node block-quote-node) line)
+  node)
 
 (defmethod add!? :around ((node block-quote-node) line)
   (let ((last-child (last-child node)))
