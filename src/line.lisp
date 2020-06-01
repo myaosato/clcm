@@ -8,7 +8,6 @@
                 :*closing-tag*)
   (:export :string->lines
            :is-blank-line
-           :is-thematic-break-line
            :is-atx-heading-line
            :is-setext-heading-level-1-line
            :is-setext-heading-level-2-line
@@ -60,12 +59,6 @@
           (:greedy-repetition 0 nil (:alternation ,(code-char #x20) ,(code-char #x09)))
           :end-anchor)
         line))
-
-;; themantic break
-(defun is-thematic-break-line (line)
-  (or (scan "^ {0,3}(?:\\*\\s*){3,}$" line)
-      (scan "^ {0,3}(?:_\\s*){3,}$" line)
-      (scan "^ {0,3}(?:-\\s*){3,}$" line)))
 
 ;; atx heading
 (defun is-atx-heading-line (line)

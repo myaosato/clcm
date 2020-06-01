@@ -1,12 +1,13 @@
 (defpackage :clcm/nodes/block-quote-methods
-  (:use :cl :clcm/node)
+  (:use :cl
+        :clcm/node
+        :clcm/nodes/thematic-break)
   (:import-from :cl-ppcre
                 :scan-to-strings)
   (:import-from :clcm/nodes/block-quote
                 :block-quote-node)
   (:import-from :clcm/line
                 :is-blank-line
-                :is-thematic-break-line
                 :is-atx-heading-line
                 :is-indented-code-block-line
                 :is-backtick-fenced-code-block-line

@@ -1,12 +1,13 @@
 (defpackage :clcm/nodes/document
-  (:use :cl :clcm/node)
+  (:use :cl
+        :clcm/node
+        :clcm/nodes/thematic-break)
   ;; outer utils
   (:import-from :cl-ppcre
                 :scan)
   ;; inner utils
   (:import-from :clcm/line
                 :is-blank-line
-                :is-thematic-break-line
                 :is-atx-heading-line
                 :is-indented-code-block-line
                 :is-backtick-fenced-code-block-line
@@ -23,8 +24,6 @@
   ; leaf
   (:import-from :clcm/nodes/atx-heading
                 :atx-heading-node)
-  (:import-from :clcm/nodes/thematic-break
-                :thematic-break-node)
   (:import-from :clcm/nodes/indented-code-block
                 :indented-code-block-node)
   (:import-from :clcm/nodes/fenced-code-block

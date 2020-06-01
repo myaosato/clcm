@@ -1,8 +1,9 @@
 (defpackage :clcm/nodes/paragraph
-  (:use :cl :clcm/node)
+  (:use :cl
+        :clcm/node
+        :clcm/nodes/thematic-break)
   (:import-from :clcm/line
                 :is-blank-line
-                :is-thematic-break-line
                 :is-atx-heading-line
                 :is-setext-heading-level-1-line
                 :is-setext-heading-level-2-line
