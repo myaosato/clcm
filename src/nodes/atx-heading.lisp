@@ -1,11 +1,13 @@
 (defpackage :clcm/nodes/atx-heading
   (:use :cl :clcm/node)
   (:import-from :cl-ppcre
+                :scan
                 :scan-to-strings)
   (:import-from :clcm/utils
                 :->>
                 :last-char)
-  (:export :atx-heading-node))
+  (:export :atx-heading-node
+           :is-atx-heading-line))
 (in-package :clcm/nodes/atx-heading)
 
 (defclass atx-heading-node (node)
@@ -48,3 +50,8 @@
             (heading-level node)
             content
             (heading-level node))))
+
+
+;;
+(defun is-atx-heading-line (line)
+  (scan "^ {0,3}#{1,6}(\\t| |$)" line))

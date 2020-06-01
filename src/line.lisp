@@ -8,7 +8,6 @@
                 :*closing-tag*)
   (:export :string->lines
            :is-blank-line
-           :is-atx-heading-line
            :is-setext-heading-level-1-line
            :is-setext-heading-level-2-line
            :is-indented-code-block-line
@@ -59,10 +58,6 @@
           (:greedy-repetition 0 nil (:alternation ,(code-char #x20) ,(code-char #x09)))
           :end-anchor)
         line))
-
-;; atx heading
-(defun is-atx-heading-line (line)
-  (scan "^ {0,3}#{1,6}(\\t| |$)" line))
 
 ;; setext heading
 (defun is-setext-heading-level-1-line (line)
