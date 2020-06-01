@@ -4,15 +4,10 @@
         :clcm/nodes/thematic-break
         :clcm/nodes/atx-heading
         :clcm/nodes/setext-heading
-        :clcm/nodes/fenced-code-block)
+        :clcm/nodes/fenced-code-block
+        :clcm/nodes/html-block)
   (:import-from :clcm/line
                 :is-blank-line
-                :is-html-block-type-1-start-line
-                :is-html-block-type-2-start-line
-                :is-html-block-type-3-start-line
-                :is-html-block-type-4-start-line
-                :is-html-block-type-5-start-line
-                :is-html-block-type-6-start-line
                 :is-block-quote-line
                 :*white-space-characters*)
   (:export :paragraph-node))
