@@ -1,5 +1,7 @@
 (defpackage :clcm/nodes/setext-heading
   (:use :cl :clcm/node)
+  (:import-from :cl-ppcre
+                :scan)
   (:export :setext-heading-node
            :heading-level
            :is-setext-heading-level-1-line
