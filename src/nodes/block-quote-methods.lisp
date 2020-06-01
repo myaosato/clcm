@@ -20,8 +20,6 @@
                 :is-html-block-type-6-start-line
                 :is-html-block-type-7-start-line
                 :is-block-quote-line)
-  (:import-from :clcm/nodes/thematic-break
-                :thematic-break-node)
   (:import-from :clcm/nodes/indented-code-block
                 :indented-code-block-node)
   (:import-from :clcm/nodes/fenced-code-block
