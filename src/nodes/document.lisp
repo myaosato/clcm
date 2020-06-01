@@ -2,14 +2,14 @@
   (:use :cl
         :clcm/node
         :clcm/nodes/thematic-break
-        :clcm/nodes/atx-heading)
+        :clcm/nodes/atx-heading
+        :clcm/nodes/indented-code-block)
   ;; outer utils
   (:import-from :cl-ppcre
                 :scan)
   ;; inner utils
   (:import-from :clcm/line
                 :is-blank-line
-                :is-indented-code-block-line
                 :is-backtick-fenced-code-block-line
                 :is-tilde-fenced-code-block-line
                 :is-html-block-type-1-start-line
@@ -22,8 +22,6 @@
                 :is-block-quote-line)
   ;; block
   ; leaf
-  (:import-from :clcm/nodes/indented-code-block
-                :indented-code-block-node)
   (:import-from :clcm/nodes/fenced-code-block
                 :make-fenced-code-block-node)
   (:import-from :clcm/nodes/html-block

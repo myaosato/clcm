@@ -6,9 +6,9 @@
   (:import-from :clcm/utils
                 :->)
   (:import-from :clcm/line
-                :is-indented-code-block-close-line
                 :is-blank-line)
-  (:export :indented-code-block-node))
+  (:export :indented-code-block-node
+           :is-indented-code-block-line))
 (in-package :clcm/nodes/indented-code-block)
 
 (defclass indented-code-block-node (node)
@@ -44,3 +44,11 @@
          (trim-left-blank-line (cdr list)))
         (t
          list)))
+
+
+;;
+(defun is-indented-code-block-line (line)
+  (scan "^(?: {0,3}\\t|    )" line))
+
+(defun is-indented-code-block-close-line (line)
+  (scan "^ {0,3}\\S" line))

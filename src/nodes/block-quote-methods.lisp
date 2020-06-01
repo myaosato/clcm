@@ -2,14 +2,14 @@
   (:use :cl
         :clcm/node
         :clcm/nodes/thematic-break
-        :clcm/nodes/atx-heading)
+        :clcm/nodes/atx-heading
+        :clcm/nodes/indented-code-block)
   (:import-from :cl-ppcre
                 :scan-to-strings)
   (:import-from :clcm/nodes/block-quote
                 :block-quote-node)
   (:import-from :clcm/line
                 :is-blank-line
-                :is-indented-code-block-line
                 :is-backtick-fenced-code-block-line
                 :is-tilde-fenced-code-block-line
                 :is-html-block-type-1-start-line
@@ -20,8 +20,6 @@
                 :is-html-block-type-6-start-line
                 :is-html-block-type-7-start-line
                 :is-block-quote-line)
-  (:import-from :clcm/nodes/indented-code-block
-                :indented-code-block-node)
   (:import-from :clcm/nodes/fenced-code-block
                 :make-fenced-code-block-node)
   (:import-from :clcm/nodes/html-block

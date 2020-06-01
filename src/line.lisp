@@ -8,8 +8,6 @@
                 :*closing-tag*)
   (:export :string->lines
            :is-blank-line
-           :is-indented-code-block-line
-           :is-indented-code-block-close-line
            :is-backtick-fenced-code-block-line
            :is-tilde-fenced-code-block-line
            :is-html-block-type-1-start-line
@@ -56,13 +54,6 @@
           (:greedy-repetition 0 nil (:alternation ,(code-char #x20) ,(code-char #x09)))
           :end-anchor)
         line))
-
-;; indented code block
-(defun is-indented-code-block-line (line)
-  (scan "^(?: {0,3}\\t|    )" line))
-
-(defun is-indented-code-block-close-line (line)
-  (scan "^ {0,3}\\S" line))
 
 ;; fenced code block
 (defun is-backtick-fenced-code-block-line (line)
