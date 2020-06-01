@@ -1,15 +1,15 @@
 (defpackage :clcm/nodes/fenced-code-block
   (:use :cl :clcm/node)
   (:import-from :cl-ppcre
-                :scan)
+                :scan
+                :scan-to-strings)
   (:import-from :clcm/utils
                 :repeat-char
                 :trim-left-space-max-n)
-  (:import-from :clcm/line
-                :is-backtick-fenced-code-block-line
-                :is-tilde-fenced-code-block-line)
   (:export :fenced-code-block-node
-           :make-fenced-code-block-node))
+           :make-fenced-code-block-node
+           :is-backtick-fenced-code-block-line
+           :is-tilde-fenced-code-block-line))
 (in-package :clcm/nodes/fenced-code-block)
 
 (defclass fenced-code-block-node (node)
@@ -62,3 +62,11 @@
   (let ((close-regexp (format nil "^ {0,3}~A{~A,} *$"
                               (code-fence-character node) (code-fence-length node))))
     (scan close-regexp line)))
+
+
+;;
+(defun is-backtick-fenced-code-block-line (line)
+  (scan-to-strings "^( {0,3})(`{3,})\\s*([^`\\s]*)(?:\\s[^`]*)?$" line))
+
+(defun is-tilde-fenced-code-block-line (line)
+  (scan-to-strings "^( {0,3})(~{3,})\\s*([^\\s]*)(?:\\s.*)?$" line))

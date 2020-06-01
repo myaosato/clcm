@@ -3,11 +3,10 @@
         :clcm/node
         :clcm/nodes/thematic-break
         :clcm/nodes/atx-heading
-        :clcm/nodes/setext-heading)
+        :clcm/nodes/setext-heading
+        :clcm/nodes/fenced-code-block)
   (:import-from :clcm/line
                 :is-blank-line
-                :is-backtick-fenced-code-block-line
-                :is-tilde-fenced-code-block-line
                 :is-html-block-type-1-start-line
                 :is-html-block-type-2-start-line
                 :is-html-block-type-3-start-line

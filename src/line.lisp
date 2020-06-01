@@ -8,8 +8,6 @@
                 :*closing-tag*)
   (:export :string->lines
            :is-blank-line
-           :is-backtick-fenced-code-block-line
-           :is-tilde-fenced-code-block-line
            :is-html-block-type-1-start-line
            :is-html-block-type-2-start-line
            :is-html-block-type-3-start-line
@@ -54,14 +52,6 @@
           (:greedy-repetition 0 nil (:alternation ,(code-char #x20) ,(code-char #x09)))
           :end-anchor)
         line))
-
-;; fenced code block
-(defun is-backtick-fenced-code-block-line (line)
-  (scan-to-strings "^( {0,3})(`{3,})\\s*([^`\\s]*)(?:\\s[^`]*)?$" line))
-
-(defun is-tilde-fenced-code-block-line (line)
-  (scan-to-strings "^( {0,3})(~{3,})\\s*([^\\s]*)(?:\\s.*)?$" line))
-
 
 ;; HTML block
 ;; ref. https://spec.commonmark.org/0.29/#html-blocks
