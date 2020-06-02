@@ -24,17 +24,14 @@
   nil)
 
 (defmethod add!? ((node document-node) line)
-  (cond ((skip-blank-line? line))
-        ((attach-thematic-break!? node line))
-        ((attach-atx-heading!? node line))
-        ((attach-indented-code-block!? node line))
-        ((attach-fenced-code-block!? node line))
-        ((attach-html-block!? node line))
-        ((is-block-quote-line line)
-         (add-child node (make-instance 'block-quote-node))
-         (add!? (last-child node) line))
-        (t
-         (attach-paragraph! node line))))
+  (or (skip-blank-line? line)
+      (attach-thematic-break!? node line)
+      (attach-atx-heading!? node line)
+      (attach-indented-code-block!? node line)
+      (attach-fenced-code-block!? node line)
+      (attach-html-block!? node line)
+      (attach-block-quote!? node line)
+      (attach-paragraph! node line)))
 
 (defmethod ->html ((node document-node))
   (format nil "~{~A~}"

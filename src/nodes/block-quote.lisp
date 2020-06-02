@@ -3,7 +3,8 @@
   (:import-from :cl-ppcre
                 :scan)
   (:export :block-quote-node
-           :is-block-quote-line))
+           :is-block-quote-line
+           :attach-block-quote!?))
 (in-package :clcm/nodes/block-quote)
 
 (defclass block-quote-node (node)
@@ -18,3 +19,10 @@
 
 (defun is-block-quote-line (line)
   (scan *block-quote-marker* line))
+
+(defun attach-block-quote!? (node line)
+  (when (is-block-quote-line line)
+    (let ((child (make-instance 'block-quote-node)))
+      (add-child node child)
+      (add!? child line)
+      child)))
