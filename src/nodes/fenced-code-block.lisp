@@ -7,9 +7,9 @@
                 :repeat-char
                 :trim-left-space-max-n)
   (:export :fenced-code-block-node
-           :make-fenced-code-block-node
            :is-backtick-fenced-code-block-line
-           :is-tilde-fenced-code-block-line))
+           :is-tilde-fenced-code-block-line
+           :attach-fenced-code-block!?))
 (in-package :clcm/nodes/fenced-code-block)
 
 (defclass fenced-code-block-node (node)
@@ -45,15 +45,6 @@
                 "")
             content)))
 
-(defun make-fenced-code-block-node (line)
-  (let ((code-fence-info (get-code-fence line)))
-    (if code-fence-info
-        (make-instance 'fenced-code-block-node
-                       :code-fence-indent (length (aref code-fence-info 0))
-                       :code-fence-character (char (aref code-fence-info 1) 0)
-                       :code-fence-length (length (aref code-fence-info 1))
-                       :info-string (aref code-fence-info 2)))))
-
 (defun get-code-fence (line)
   (or (second (multiple-value-list (is-backtick-fenced-code-block-line line)))
       (second (multiple-value-list (is-tilde-fenced-code-block-line line)))))
@@ -65,8 +56,24 @@
 
 
 ;;
+(defun make-fenced-code-block-node (line)
+  (let ((code-fence-info (get-code-fence line)))
+    (if code-fence-info
+        (make-instance 'fenced-code-block-node
+                       :code-fence-indent (length (aref code-fence-info 0))
+                       :code-fence-character (char (aref code-fence-info 1) 0)
+                       :code-fence-length (length (aref code-fence-info 1))
+                       :info-string (aref code-fence-info 2)))))
+
 (defun is-backtick-fenced-code-block-line (line)
   (scan-to-strings "^( {0,3})(`{3,})\\s*([^`\\s]*)(?:\\s[^`]*)?$" line))
 
 (defun is-tilde-fenced-code-block-line (line)
   (scan-to-strings "^( {0,3})(~{3,})\\s*([^\\s]*)(?:\\s.*)?$" line))
+
+(defun attach-fenced-code-block!? (node line)
+  (when (or (is-backtick-fenced-code-block-line line)
+            (is-tilde-fenced-code-block-line line))
+    (let ((child (make-fenced-code-block-node line)))
+      (add-child node child)
+      child)))
