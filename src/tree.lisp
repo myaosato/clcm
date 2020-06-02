@@ -1,21 +1,12 @@
 (defpackage :clcm/tree
-  (:use :cl :clcm/node)
+  (:use :cl
+        :clcm/node
+        :clcm/nodes/document)
   (:shadow :close)
   (:import-from :clcm/line
                 :string->lines)
   (:import-from :clcm/utils
                 :->)
-  (:import-from :clcm/node
-                :node
-                :close!?
-                :add!?
-                :last-child)
-  (:import-from :clcm/nodes/document
-                :document-node)
-  (:import-from :clcm/nodes/block-quote
-                :block-quote-node)
-  (:import-from :clcm/nodes/block-quote-methods
-                :trim-block-quote-marker)
   (:export :make-tree
            :tree->html))
 (in-package :clcm/tree)
