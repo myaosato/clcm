@@ -7,7 +7,8 @@
                 :->>
                 :last-char)
   (:export :atx-heading-node
-           :is-atx-heading-line))
+           :is-atx-heading-line
+           :attach-atx-heading!?))
 (in-package :clcm/nodes/atx-heading)
 
 (defclass atx-heading-node (node)
@@ -55,3 +56,10 @@
 ;;
 (defun is-atx-heading-line (line)
   (scan "^ {0,3}#{1,6}(\\t| |$)" line))
+
+(defun attach-atx-heading!? (node line)
+  (when (is-atx-heading-line line)
+    (let ((child (make-instance 'atx-heading-node :is-open nil)))
+      (add-child node child)
+      (add!? child line)
+      child)))
