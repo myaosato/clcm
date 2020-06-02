@@ -5,6 +5,7 @@
                 :scan-to-strings)
   (:export :string->lines
            :is-blank-line
+           :skip-blank-line?
            :*white-space-characters*))
 (in-package :clcm/line)
 
@@ -39,3 +40,6 @@
           (:greedy-repetition 0 nil (:alternation ,(code-char #x20) ,(code-char #x09)))
           :end-anchor)
         line))
+
+(defun skip-blank-line? (line)
+  (is-blank-line line))

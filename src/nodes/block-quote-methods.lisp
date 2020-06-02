@@ -11,7 +11,8 @@
   (:import-from :cl-ppcre
                 :scan-to-strings)
   (:import-from :clcm/line
-                :is-blank-line)
+                :is-blank-line
+                :skip-blank-line?)
   (:export :trim-block-quote-marker))
 (in-package :clcm/nodes/block-quote-methods)
 
@@ -51,8 +52,7 @@
 
 (defun _add!? (node line)
   (let ((line (trim-block-quote-marker line)))
-    (cond ((is-blank-line line)
-           nil)
+    (cond ((skip-blank-line? line))
           ((attach-thematic-break!? node line))
           ((attach-atx-heading!? node line))
           ((attach-indented-code-block!? node line))

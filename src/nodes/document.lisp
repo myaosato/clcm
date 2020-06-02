@@ -8,13 +8,11 @@
         :clcm/nodes/html-block
         :clcm/nodes/paragraph
         :clcm/nodes/block-quote)
-  ;; outer utils
   (:import-from :cl-ppcre
                 :scan)
-  ;; inner utils
   (:import-from :clcm/line
-                :is-blank-line)
-  ;;
+                :is-blank-line
+                :skip-blank-line?)
   (:import-from :clcm/nodes/block-quote-methods)
   (:export :document-node))
 (in-package :clcm/nodes/document)
@@ -26,8 +24,7 @@
   nil)
 
 (defmethod add!? ((node document-node) line)
-  (cond ((is-blank-line line)
-         nil)
+  (cond ((skip-blank-line? line))
         ((attach-thematic-break!? node line))
         ((attach-atx-heading!? node line))
         ((attach-indented-code-block!? node line))
