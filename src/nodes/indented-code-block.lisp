@@ -8,7 +8,8 @@
   (:import-from :clcm/line
                 :is-blank-line)
   (:export :indented-code-block-node
-           :is-indented-code-block-line))
+           :is-indented-code-block-line
+           :attach-indented-code-block!?))
 (in-package :clcm/nodes/indented-code-block)
 
 (defclass indented-code-block-node (node)
@@ -52,3 +53,10 @@
 
 (defun is-indented-code-block-close-line (line)
   (scan "^ {0,3}\\S" line))
+
+(defun attach-indented-code-block!? (node line)
+  (when (is-indented-code-block-line line)
+    (let ((child (make-instance 'indented-code-block-node)))
+      (add-child node child)
+      (add!? child line)
+      child)))
