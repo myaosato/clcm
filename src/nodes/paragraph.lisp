@@ -23,12 +23,7 @@
       (is-atx-heading-line line)
       (is-backtick-fenced-code-block-line line)
       (is-tilde-fenced-code-block-line line)
-      (is-html-block-type-1-start-line line)
-      (is-html-block-type-2-start-line line)
-      (is-html-block-type-3-start-line line)
-      (is-html-block-type-4-start-line line)
-      (is-html-block-type-5-start-line line)
-      (is-html-block-type-6-start-line line)
+      (is-html-block-line '(1 2 3 4 5 6) line)
       (is-block-quote-line line)))
 
 (defmethod close!? ((node paragraph-node) line)

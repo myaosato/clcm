@@ -8,13 +8,7 @@
                 :*open-tag*
                 :*closing-tag*)
   (:export :html-block-node
-           :is-html-block-type-1-start-line
-           :is-html-block-type-2-start-line
-           :is-html-block-type-3-start-line
-           :is-html-block-type-4-start-line
-           :is-html-block-type-5-start-line
-           :is-html-block-type-6-start-line
-           :is-html-block-type-7-start-line
+           :is-html-block-line
            :attach-html-block!?))
 (in-package :clcm/nodes/html-block)
 
@@ -107,7 +101,6 @@
     (6 (is-html-block-type-6-start-line line))
     (7 (is-html-block-type-7-start-line line))
     (otherwise nil)))
-
 
 (defun attach-html-block!? (node line)
   (loop :for type :from 1 :to 7
