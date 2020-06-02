@@ -34,8 +34,7 @@
          (add-child node (make-instance 'block-quote-node))
          (add!? (last-child node) line))
         (t
-         (add-child node (make-instance 'paragraph-node))
-         (add!? (last-child node) line))))
+         (attach-paragraph! node line))))
 
 (defmethod ->html ((node document-node))
   (format nil "~{~A~}"

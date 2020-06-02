@@ -10,7 +10,8 @@
   (:import-from :clcm/line
                 :is-blank-line
                 :*white-space-characters*)
-  (:export :paragraph-node))
+  (:export :paragraph-node
+           :attach-paragraph!))
 (in-package :clcm/nodes/paragraph)
 
 (defclass paragraph-node (node)
@@ -45,3 +46,9 @@
 (defmethod ->html ((node paragraph-node))
   (let ((content (format nil "~{~A~^~%~}" (children node))))
     (format nil "<p>~A</p>~%" content)))
+
+(defun attach-paragraph! (node line)
+  (let ((child (make-instance 'paragraph-node)))
+    (add-child node child)
+    (add!? child line)
+    child))
