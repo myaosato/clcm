@@ -5,16 +5,14 @@
         :clcm/nodes/atx-heading
         :clcm/nodes/indented-code-block
         :clcm/nodes/fenced-code-block
-        :clcm/nodes/html-block)
+        :clcm/nodes/html-block
+        :clcm/nodes/paragraph
+        :clcm/nodes/block-quote)
   (:import-from :cl-ppcre
                 :scan-to-strings)
-  (:import-from :clcm/nodes/block-quote
-                :block-quote-node)
   (:import-from :clcm/line
                 :is-blank-line
                 :is-block-quote-line)
-  (:import-from :clcm/nodes/paragraph
-                :paragraph-node)
   (:export :trim-block-quote-marker))
 (in-package :clcm/nodes/block-quote-methods)
 

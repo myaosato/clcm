@@ -5,7 +5,9 @@
         :clcm/nodes/atx-heading
         :clcm/nodes/indented-code-block
         :clcm/nodes/fenced-code-block
-        :clcm/nodes/html-block)
+        :clcm/nodes/html-block
+        :clcm/nodes/paragraph
+        :clcm/nodes/block-quote)
   ;; outer utils
   (:import-from :cl-ppcre
                 :scan)
@@ -14,12 +16,7 @@
                 :is-blank-line
                 :is-block-quote-line)
   ;; block
-  ; leaf
-  (:import-from :clcm/nodes/paragraph
-                :paragraph-node)
   ; container
-  (:import-from :clcm/nodes/block-quote
-                :block-quote-node)
   (:import-from :clcm/nodes/block-quote-methods)
   (:export :document-node))
 (in-package :clcm/nodes/document)
