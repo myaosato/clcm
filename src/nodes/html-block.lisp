@@ -14,7 +14,8 @@
            :is-html-block-type-4-start-line
            :is-html-block-type-5-start-line
            :is-html-block-type-6-start-line
-           :is-html-block-type-7-start-line))
+           :is-html-block-type-7-start-line
+           :attach-html-block!?))
 (in-package :clcm/nodes/html-block)
 
 (defclass html-block-node (node)
@@ -87,3 +88,32 @@
 
 (defun is-html-block-type-7-start-line (line)
   (scan *html-block-type-7-regex* line))
+
+(defun is-html-block-line (types line)
+  (unless (listp types)
+    (setf types (list types)))
+  (loop :for type :in types
+        :if (%is-html-block-line type line)
+        :do (return-from is-html-block-line t))
+  nil)
+
+(defun %is-html-block-line (type line)
+  (case type
+    (1 (is-html-block-type-1-start-line line))
+    (2 (is-html-block-type-2-start-line line))
+    (3 (is-html-block-type-3-start-line line))
+    (4 (is-html-block-type-4-start-line line))
+    (5 (is-html-block-type-5-start-line line))
+    (6 (is-html-block-type-6-start-line line))
+    (7 (is-html-block-type-7-start-line line))
+    (otherwise nil)))
+
+
+(defun attach-html-block!? (node line)
+  (loop :for type :from 1 :to 7
+        :if (is-html-block-line type line)
+        :do (let ((child (make-instance 'html-block-node :block-type type)))
+              (add-child node child)
+              (add!? child line)
+              (return-from attach-html-block!? child)))
+  nil)
