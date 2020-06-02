@@ -11,8 +11,7 @@
   (:import-from :cl-ppcre
                 :scan-to-strings)
   (:import-from :clcm/line
-                :is-blank-line
-                :is-block-quote-line)
+                :is-blank-line)
   (:export :trim-block-quote-marker))
 (in-package :clcm/nodes/block-quote-methods)
 

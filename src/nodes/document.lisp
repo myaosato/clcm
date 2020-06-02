@@ -13,10 +13,8 @@
                 :scan)
   ;; inner utils
   (:import-from :clcm/line
-                :is-blank-line
-                :is-block-quote-line)
-  ;; block
-  ; container
+                :is-blank-line)
+  ;;
   (:import-from :clcm/nodes/block-quote-methods)
   (:export :document-node))
 (in-package :clcm/nodes/document)

@@ -5,10 +5,10 @@
         :clcm/nodes/atx-heading
         :clcm/nodes/setext-heading
         :clcm/nodes/fenced-code-block
-        :clcm/nodes/html-block)
+        :clcm/nodes/html-block
+        :clcm/nodes/block-quote)
   (:import-from :clcm/line
                 :is-blank-line
-                :is-block-quote-line
                 :*white-space-characters*)
   (:export :paragraph-node))
 (in-package :clcm/nodes/paragraph)

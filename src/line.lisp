@@ -5,7 +5,6 @@
                 :scan-to-strings)
   (:export :string->lines
            :is-blank-line
-           :is-block-quote-line
            :*white-space-characters*))
 (in-package :clcm/line)
 
@@ -33,8 +32,6 @@
                  (lines input (1+ pos) (cons (buf->line buf) output))))
             (t (line input (1+ pos) output (cons char buf)))))))
 
-;; blocks ;;
-
 ;; blank line
 (defun is-blank-line (line)
   (scan `(:sequence 
@@ -42,13 +39,3 @@
           (:greedy-repetition 0 nil (:alternation ,(code-char #x20) ,(code-char #x09)))
           :end-anchor)
         line))
-
-;; block quote
-(defvar *block-quote-marker*
-  `(:sequence
-    :start-anchor
-    (:greedy-repetition 0 3 " ")
-    ">"))
-
-(defun is-block-quote-line (line)
-  (scan *block-quote-marker* line))
