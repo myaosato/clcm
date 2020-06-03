@@ -10,6 +10,8 @@
         :clcm/nodes/block-quote)
   (:import-from :cl-ppcre
                 :scan-to-strings)
+  (:import-from :clcm/utils
+                :*string-tab*)
   (:import-from :clcm/line
                 :is-blank-line
                 :skip-blank-line?)
@@ -27,10 +29,19 @@
       (is-block-quote-line line)))
 
 (defun trim-block-quote-marker (line)
-  (multiple-value-bind (has-marker content) (scan-to-strings "^ {0,3}> ?(.*)$" line)
-    (if has-marker
-        (aref content 0)
-        line)))
+  (multiple-value-bind (has-marker content) (scan-to-strings "^ {0,3}>([ \\t]?)(\\t?)(.*)$" line)
+    (cond ((and has-marker (string= (aref content 0) " ") (string= (aref content 1) *string-tab*))
+           (concatenate 'string "  " (aref content 2)))
+          ((and has-marker (string= (aref content 0) " ") (string= (aref content 1) ""))
+           (aref content 2))
+          ((and has-marker
+                (string= (aref content 0) *string-tab*) (string= (aref content 1) *string-tab*))
+           (concatenate 'string "      " (aref content 2)))
+          ((and has-marker (string= (aref content 0) *string-tab*) (string= (aref content 1) ""))
+           (concatenate 'string "  " (aref content 2)))
+          (has-marker
+           (aref content 2))
+          (t line))))
 
 (defun _close!? (node line)
   (cond ((not (or (typep (last-child node) 'paragraph-node) (is-block-quote-line line)))
@@ -48,18 +59,22 @@
   (_close!? node line)
   (when (and (typep (last-child node) 'node)
              (is-open (last-child node)))
-    (close!? (last-child node) (trim-block-quote-marker line))))
+    (cond ((typep (last-child node) 'indented-code-block-node)
+           ;; TODO
+           (close!? (last-child node) (trim-block-quote-marker line)))
+          (t
+           (close!? (last-child node) (trim-block-quote-marker line))))))
 
 (defun _add!? (node line)
-  (let ((line (trim-block-quote-marker line)))
-    (or (skip-blank-line? line)
-      (attach-thematic-break!? node line)
-      (attach-atx-heading!? node line)
-      (attach-indented-code-block!? node line)
-      (attach-fenced-code-block!? node line)
-      (attach-html-block!? node line)
-      (attach-block-quote!? node line)
-      (attach-paragraph! node line))))
+  (let ((trimed-line (trim-block-quote-marker line)))
+    (or (skip-blank-line? trimed-line)
+      (attach-thematic-break!? node trimed-line)
+      (attach-atx-heading!? node trimed-line)
+      (attach-indented-code-block!? node trimed-line)
+      (attach-fenced-code-block!? node trimed-line)
+      (attach-html-block!? node trimed-line)
+      (attach-block-quote!? node trimed-line)
+      (attach-paragraph! node trimed-line))))
 
 (defmethod add!? ((node block-quote-node) line)
   node)

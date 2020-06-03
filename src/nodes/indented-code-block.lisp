@@ -23,8 +23,8 @@
   (if (scan "^ {0,3}$" line)
       (add-child node "")
       (let ((content (-> (multiple-value-list (scan-to-strings "^(?: {0,3}\\t|    )(.*)$" line))
-                          (cadr)
-                          (aref 0))))
+                         (cadr)
+                         (aref 0))))
         (add-child node content))))
 
 (defmethod ->html ((node indented-code-block-node))

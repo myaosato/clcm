@@ -3,7 +3,8 @@
   (:export :->
            :->>
            :last-char
-           :trim-left-space-max-n))
+           :trim-left-space-max-n
+           :*string-tab*))
 (in-package :clcm/utils)
 
 ;; https://gist.github.com/myaosato/98d08623768e53af10f0da9810b7eb3f
@@ -34,3 +35,5 @@
         ((char= (char string 0) #\Space)
          (trim-left-space-max-n (subseq string 1) (1- n)))
         (t string)))
+;;
+(defvar *string-tab* (format nil "~A" #\Tab))
