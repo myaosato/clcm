@@ -1,5 +1,6 @@
 (defpackage :clcm/line
-  (:use :cl)
+  (:use :cl
+        :clcm/utils)
   (:import-from :cl-ppcre
                 :scan
                 :scan-to-strings)
@@ -58,7 +59,7 @@
                      (incf depth-logical)
                      (incf depth-real))
                     ((char= c #\Tab)
-                     (incf depth-logical (- 4 (rem (+ offset depth) 4)))
+                     (incf depth-logical (- 4 (rem (+ offset depth-logical) 4)))
                      (incf depth-real))
                     (t (return-from search (values depth-logical depth-real))))
           :if (> depth-logical 3)
