@@ -1,5 +1,7 @@
 (defpackage :clcm/nodes/block-quote-methods
   (:use :cl
+        :clcm/utils
+        :clcm/line
         :clcm/node
         :clcm/nodes/thematic-break
         :clcm/nodes/atx-heading
@@ -10,11 +12,6 @@
         :clcm/nodes/block-quote)
   (:import-from :cl-ppcre
                 :scan-to-strings)
-  (:import-from :clcm/utils
-                :*string-tab*)
-  (:import-from :clcm/line
-                :is-blank-line
-                :skip-blank-line?)
   (:export :trim-block-quote-marker))
 (in-package :clcm/nodes/block-quote-methods)
 
@@ -43,6 +40,7 @@
            (aref content 2))
           (t line))))
 
+;; close
 (defun _close!? (node line)
   (cond ((not (or (typep (last-child node) 'paragraph-node) (is-block-quote-line line)))
          (close-node node))
@@ -53,18 +51,12 @@
            (close-node node)))))
 
 (defmethod close!? ((node block-quote-node) line)
-  node)
-
-(defmethod close!? :around ((node block-quote-node) line)
   (_close!? node line)
-  (when (and (typep (last-child node) 'node)
-             (is-open (last-child node)))
-    (cond ((typep (last-child node) 'indented-code-block-node)
-           ;; TODO
-           (close!? (last-child node) (trim-block-quote-marker line)))
-          (t
-           (close!? (last-child node) (trim-block-quote-marker line))))))
+  (let ((last-child (last-child node)))
+    (when (and last-child (is-open (last-child node)))
+      (close!? last-child (trim-block-quote-marker line)))))
 
+;; add
 (defun _add!? (node line)
   (let ((trimed-line (trim-block-quote-marker line)))
     (or (skip-blank-line? trimed-line)
@@ -77,16 +69,12 @@
       (attach-paragraph! node trimed-line))))
 
 (defmethod add!? ((node block-quote-node) line)
-  node)
-
-(defmethod add!? :around ((node block-quote-node) line)
   (let ((last-child (last-child node)))
-    (if (and last-child
-             (typep last-child 'node)
-             (is-open last-child))
+    (if (and last-child (is-open last-child))
         (add!? last-child (trim-block-quote-marker line))
         (_add!? node line))))
 
+;; ->html
 (defmethod ->html ((node block-quote-node))
   (format nil "<blockquote>~%~{~A~}</blockquote>~%"
           (mapcar #'->html (children node))))

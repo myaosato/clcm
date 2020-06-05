@@ -23,20 +23,6 @@
 (defgeneric parses-inlines (node))
 (defgeneric ->html (node))
 
-(defmethod add!? :around ((node node) line)
-  (let ((last-child (last-child node)))
-    (if (and last-child
-             (typep last-child 'node)
-             (is-open last-child))
-         (add!? last-child line)
-         (call-next-method node line))))
-
-(defmethod close!? :around ((node node) line)
-  (call-next-method node line)
-  (when (and (typep (last-child node) 'node)
-             (is-open (last-child node)))
-    (close!? (last-child node) line)))
-
 (defmethod parses-inlines ((node node))
   (setf (children node) (reverse (children node)))
   (loop :for child :in (children node)
