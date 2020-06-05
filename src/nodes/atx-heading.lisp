@@ -17,7 +17,8 @@
 (defmethod close!? ((node atx-heading-node) line)
   nil)
 
-(defmethod add!? ((node atx-heading-node) line)
+(defmethod add!? ((node atx-heading-node) line offset)
+  (declare (ignore offset))
   (let ((content (get-content line))
         (level (get-level line)))
     (setf (heading-level node) level)
@@ -61,5 +62,5 @@
   (when (is-atx-heading-line line)
     (let ((child (make-instance 'atx-heading-node :is-open nil)))
       (add-child node child)
-      (add!? child line)
+      (add!? child line 0)
       child)))

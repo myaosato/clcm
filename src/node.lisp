@@ -19,7 +19,7 @@
    (children :accessor children :initarg :children :initform nil)))
 
 (defgeneric close!? (node line))
-(defgeneric add!? (node line))
+(defgeneric add!? (node line offset))
 (defgeneric parses-inlines (node))
 (defgeneric ->html (node))
 

@@ -22,7 +22,8 @@
           (and (= (block-type node) 7) (is-blank-line line)))
       (close-node node)))
 
-(defmethod add!? ((node html-block-node) line)
+(defmethod add!? ((node html-block-node) line offset)
+  (declare (ignore offset))
   (add-child node line)
   (if (or (and (= (block-type node) 1) (scan "</(?:script|pre|style)>" line))
           (and (= (block-type node) 2) (scan "-->" line))
@@ -107,6 +108,6 @@
         :if (is-html-block-line type line)
         :do (let ((child (make-instance 'html-block-node :block-type type)))
               (add-child node child)
-              (add!? child line)
+              (add!? child line 0)
               (return-from attach-html-block!? child)))
   nil)

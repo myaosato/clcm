@@ -19,7 +19,8 @@
   (if (is-indented-code-block-close-line line)
       (close-node node)))
 
-(defmethod add!? ((node indented-code-block-node) line)
+(defmethod add!? ((node indented-code-block-node) line offset)
+  (declare (ignore offset))
   (if (scan "^ {0,3}$" line)
       (add-child node "")
       (let ((content (-> (multiple-value-list (scan-to-strings "^(?: {0,3}\\t|    )(.*)$" line))
@@ -58,5 +59,5 @@
   (when (is-indented-code-block-line line)
     (let ((child (make-instance 'indented-code-block-node)))
       (add-child node child)
-      (add!? child line)
+      (add!? child line 0)
       child)))

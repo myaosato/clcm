@@ -15,8 +15,8 @@
 (defmethod close!? ((node thematic-break-node) line)
   nil)
 
-(defmethod add!? ((node thematic-break-node) line)
-  nil)
+;; add  not use
+;;(defmethod add!? ((node thematic-break-node) line offset) nil)
 
 (defmethod ->html ((node thematic-break-node))
   (format nil "<hr />~%"))

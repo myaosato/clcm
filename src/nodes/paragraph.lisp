@@ -31,7 +31,8 @@
   (when (close-paragraph-line line)
     (close-node node)))
 
-(defmethod add!? ((node paragraph-node) line)
+(defmethod add!? ((node paragraph-node) line offset)
+  (declare (ignore offset))
   (cond ((is-setext-heading-level-1-line line)
          (change-class node 'setext-heading-node)
          (setf (heading-level node) 1)
@@ -50,5 +51,5 @@
 (defun attach-paragraph! (node line)
   (let ((child (make-instance 'paragraph-node)))
     (add-child node child)
-    (add!? child line)
+    (add!? child line 0)
     child))

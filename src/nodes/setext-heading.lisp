@@ -14,8 +14,8 @@
 (defmethod close!? ((node setext-heading-node) line)
   nil)
 
-(defmethod add!? ((node setext-heading-node) line)
-  nil)
+;; add  not use
+;;(defmethod add!? ((node setext-heading-node) line offset) nil)
 
 (defmethod ->html ((node setext-heading-node))
   (let ((content (format nil "~{~A~^~%~}" (children node))))

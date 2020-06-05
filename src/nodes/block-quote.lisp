@@ -24,5 +24,5 @@
   (when (is-block-quote-line line)
     (let ((child (make-instance 'block-quote-node)))
       (add-child node child)
-      (add!? child line)
+      (add!? child line 0)
       child)))

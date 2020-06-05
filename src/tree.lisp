@@ -36,7 +36,7 @@
 
 (defun consumes-line (tree line)
   (close!? (root tree) line) ;; side effects !!
-  (add!? (root tree) line) ;; side effects !!
+  (add!? (root tree) line 0) ;; side effects !!
   tree)
 
 ;; parse inlines

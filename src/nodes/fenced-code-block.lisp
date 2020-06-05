@@ -22,7 +22,8 @@
   ;; close when call add!?
   nil)
 
-(defmethod add!? ((node fenced-code-block-node) line)
+(defmethod add!? ((node fenced-code-block-node) line offset)
+  (declare (ignore offset))
   (cond ((is-closed-line node line)
          (close-node node))
         ((= (code-fence-indent node) 0)

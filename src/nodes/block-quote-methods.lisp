@@ -68,10 +68,11 @@
       (attach-block-quote!? node trimed-line)
       (attach-paragraph! node trimed-line))))
 
-(defmethod add!? ((node block-quote-node) line)
+(defmethod add!? ((node block-quote-node) line offset)
+  (declare (ignore offset))
   (let ((last-child (last-child node)))
     (if (and last-child (is-open last-child))
-        (add!? last-child (trim-block-quote-marker line))
+        (add!? last-child (trim-block-quote-marker line) 0)
         (_add!? node line))))
 
 ;; ->html

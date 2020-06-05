@@ -35,10 +35,11 @@
       (attach-block-quote!? node line)
       (attach-paragraph! node line)))
 
-(defmethod add!? ((node document-node) line)
+(defmethod add!? ((node document-node) line offset)
+  (declare (ignore offset))
   (let ((last-child (last-child node)))
     (if (and last-child (is-open last-child))
-        (add!? last-child line)
+        (add!? last-child line 0)
         (_add!? node line))))
 
 ;; html
