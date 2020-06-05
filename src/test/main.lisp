@@ -42,11 +42,11 @@
 
 (defun test-for (num)
   (let* ((test-data (decode-json-from-source *spec-json-file*))
-         (test-case (nth (1- num) test-data)))
-    (if (string= (cdr (assoc :html test-case))
-                 (cm->html (cdr (assoc :markdown test-case))))
+         (test-case (nth (1- num) test-data))
+         (result (cm->html (cdr (assoc :markdown test-case)))))
+    (if (string= (cdr (assoc :html test-case)) result)
         (values t (format nil "OK~%"))
-        (values nil (format nil "NG~%~A~%" (cm->html (cdr (assoc :markdown test-case))))))))
+        (values nil (format nil "NG~%~A~%" result)))))
 
 (defun test-range (start end)
   (loop :for ind :from start :to end
