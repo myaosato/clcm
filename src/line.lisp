@@ -7,6 +7,7 @@
            :is-blank-line
            :skip-blank-line?
            :get-indented-depth-of
+           :get-indented-depth-and-line
            :*white-space-characters*))
 (in-package :clcm/line)
 
@@ -48,14 +49,24 @@
 
 ;; indent
 (defun get-indented-depth-of (line offset)
-  (if (= 0 (length line)) (return-from get-indented-depth-of 0))
-  (let ((depth 0))
+  (if (= 0 (length line)) (return-from get-indented-depth-of (values 0 0)))
+  (let ((depth-logical 0)
+        (depth-real))
     (loop :named search
           :for c :across line
           :do (cond ((char= c #\Space)
-                     (incf depth))
+                     (incf depth-logical)
+                     (incf depth-real))
                     ((char= c #\Tab)
-                     (incf depth (- 4 (rem (+ offset depth) 4))))
-                    (t (return-from search depth)))
-          :if (> depth 3)
-          :return depth)))
+                     (incf depth-logical (- 4 (rem (+ offset depth) 4)))
+                     (incf depth-real))
+                    (t (return-from search (values depth-logical depth-real)))
+          :if (> depth-logical 3)
+          :return (values depth-logical depth-real))))
+
+(defun get-indented-depth-and-line (line offset)
+  (multiple-value-bind (depth-logical depth-real) (get-indented-depth-of line offset)
+    (values depth-logical
+            (concatenate 'string
+                         (repeat-char #\Space depth-logical)
+                         (subseq line depth-real)))))

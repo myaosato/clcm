@@ -4,6 +4,7 @@
            :->>
            :last-char
            :trim-left-space-max-n
+           :repeat-char
            :*string-tab*))
 (in-package :clcm/utils)
 
@@ -37,3 +38,6 @@
         (t string)))
 ;;
 (defvar *string-tab* (format nil "~A" #\Tab))
+
+(defun repeat-char (char num)
+  (make-array (list num) :element-type 'character :initial-element char))
