@@ -6,6 +6,7 @@
   (:export :string->lines
            :is-blank-line
            :skip-blank-line?
+           :get-indented-depth-of
            :*white-space-characters*))
 (in-package :clcm/line)
 
@@ -43,3 +44,18 @@
 
 (defun skip-blank-line? (line)
   (is-blank-line line))
+
+
+;; indent
+(defun get-indented-depth-of (line offset)
+  (if (= 0 (length line)) (return-from get-indented-depth-of 0))
+  (let ((depth 0))
+    (loop :named search
+          :for c :across line
+          :do (cond ((char= c #\Space)
+                     (incf depth))
+                    ((char= c #\Tab)
+                     (incf depth (- 4 (rem (+ offset depth) 4))))
+                    (t (return-from search depth)))
+          :if (> depth 3)
+          :return depth)))
