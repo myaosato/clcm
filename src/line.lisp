@@ -51,7 +51,7 @@
 (defun get-indented-depth-of (line offset)
   (if (= 0 (length line)) (return-from get-indented-depth-of (values 0 0)))
   (let ((depth-logical 0)
-        (depth-real))
+        (depth-real 0))
     (loop :named search
           :for c :across line
           :do (cond ((char= c #\Space)
@@ -60,7 +60,7 @@
                     ((char= c #\Tab)
                      (incf depth-logical (- 4 (rem (+ offset depth) 4)))
                      (incf depth-real))
-                    (t (return-from search (values depth-logical depth-real)))
+                    (t (return-from search (values depth-logical depth-real))))
           :if (> depth-logical 3)
           :return (values depth-logical depth-real))))
 
