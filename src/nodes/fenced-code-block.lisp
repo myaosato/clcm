@@ -1,11 +1,10 @@
 (defpackage :clcm/nodes/fenced-code-block
-  (:use :cl :clcm/node)
+  (:use :cl
+        :clcm/utils
+        :clcm/node)
   (:import-from :cl-ppcre
                 :scan
                 :scan-to-strings)
-  (:import-from :clcm/utils
-                :repeat-char
-                :trim-left-space-max-n)
   (:export :fenced-code-block-node
            :is-backtick-fenced-code-block-line
            :is-tilde-fenced-code-block-line

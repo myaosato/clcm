@@ -1,8 +1,7 @@
 (defpackage :clcm/clcm
   (:nicknames :clcm)
-  (:use :cl)
-  (:import-from :clcm/utils
-                :->)
+  (:use :cl
+        :clcm/utils)
   (:import-from :clcm/tree
                 :make-tree
                 :tree->html)

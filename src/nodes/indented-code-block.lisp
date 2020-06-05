@@ -1,12 +1,11 @@
 (defpackage :clcm/nodes/indented-code-block
-  (:use :cl :clcm/node)
+  (:use :cl
+        :clcm/utils
+        :clcm/line
+        :clcm/node)
   (:import-from :cl-ppcre
                 :scan
                 :scan-to-strings)
-  (:import-from :clcm/utils
-                :->)
-  (:import-from :clcm/line
-                :is-blank-line)
   (:export :indented-code-block-node
            :is-indented-code-block-line
            :attach-indented-code-block!?))

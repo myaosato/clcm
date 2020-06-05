@@ -1,5 +1,6 @@
 (defpackage :clcm/nodes/block-quote
-  (:use :cl :clcm/node)
+  (:use :cl
+        :clcm/node)
   (:import-from :cl-ppcre
                 :scan)
   (:export :block-quote-node

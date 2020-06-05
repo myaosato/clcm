@@ -1,11 +1,10 @@
 (defpackage :clcm/nodes/atx-heading
-  (:use :cl :clcm/node)
+  (:use :cl
+        :clcm/utils
+        :clcm/node)
   (:import-from :cl-ppcre
                 :scan
                 :scan-to-strings)
-  (:import-from :clcm/utils
-                :->>
-                :last-char)
   (:export :atx-heading-node
            :is-atx-heading-line
            :attach-atx-heading!?))

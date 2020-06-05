@@ -1,9 +1,9 @@
 (defpackage :clcm/nodes/html-block
-  (:use :cl :clcm/node)
+  (:use :cl
+        :clcm/line
+        :clcm/node)
   (:import-from :cl-ppcre
                 :scan)
-  (:import-from :clcm/line
-                :is-blank-line)
   (:import-from :clcm/raw-html-regex
                 :*open-tag*
                 :*closing-tag*)

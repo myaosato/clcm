@@ -1,5 +1,6 @@
 (defpackage :clcm/nodes/paragraph
   (:use :cl
+        :clcm/line
         :clcm/node
         :clcm/nodes/thematic-break
         :clcm/nodes/atx-heading
@@ -7,9 +8,6 @@
         :clcm/nodes/fenced-code-block
         :clcm/nodes/html-block
         :clcm/nodes/block-quote)
-  (:import-from :clcm/line
-                :is-blank-line
-                :*white-space-characters*)
   (:export :paragraph-node
            :attach-paragraph!))
 (in-package :clcm/nodes/paragraph)

@@ -1,12 +1,10 @@
 (defpackage :clcm/tree
   (:use :cl
+        :clcm/utils
+        :clcm/line
         :clcm/node
         :clcm/nodes/document)
   (:shadow :close)
-  (:import-from :clcm/line
-                :string->lines)
-  (:import-from :clcm/utils
-                :->)
   (:export :make-tree
            :tree->html))
 (in-package :clcm/tree)
