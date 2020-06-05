@@ -38,6 +38,3 @@
         (t string)))
 ;;
 (defvar *string-tab* (format nil "~A" #\Tab))
-
-(defun repeat-char (char num)
-  (make-array (list num) :element-type 'character :initial-element char))
