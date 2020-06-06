@@ -13,24 +13,10 @@
 (defclass atx-heading-node (node)
   ((heading-level :accessor heading-level :initarg :heading-level :initform nil)))
 
-(defmethod close!? ((node atx-heading-node) line)
-  nil)
+;; close
+;;(defmethod close!? ((node atx-heading-node) line offset) nil)
 
-(defmethod add!? ((node atx-heading-node) line offset)
-  (declare (ignore offset))
-  (let ((content (get-content line))
-        (level (get-level line)))
-    (setf (heading-level node) level)
-    (setf (children node) (list content))))
-
-(defun trim-closing-sequence (line)
-  (let ((candidate (string-right-trim '(#\#) line)))
-    (if (or (string= candidate "")
-            (char= (last-char candidate) #\Space)
-            (char= (last-char candidate) #\Tab))
-        candidate
-        line)))
-
+;; add
 (defun get-content (line)
   (->> line ; "  ###  ho  ge  ## "
        (string-trim '(#\Space)) ; "###  ho  ge  ##"
@@ -43,6 +29,23 @@
        (string-trim '(#\Space))
        (scan-to-strings "^#{1,6}")
        (length)))
+
+(defmethod add!? ((node atx-heading-node) line offset)
+  (declare (ignore offset))
+  (let ((content (get-content line))
+        (level (get-level line)))
+    (setf (heading-level node) level)
+    (setf (children node) (list content))))
+
+
+;; html
+(defun trim-closing-sequence (line)
+  (let ((candidate (string-right-trim '(#\#) line)))
+    (if (or (string= candidate "")
+            (char= (last-char candidate) #\Space)
+            (char= (last-char candidate) #\Tab))
+        candidate
+        line)))
 
 (defmethod ->html ((node atx-heading-node))
   (let ((content (first (children node))))

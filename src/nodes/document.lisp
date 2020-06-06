@@ -19,10 +19,10 @@
   ())
 
 ;; close
-(defmethod close!? ((node document-node) line)
+(defmethod close!? ((node document-node) line offset)
   (let ((last-child (last-child node)))
     (when (and last-child (is-open last-child))
-      (close!? last-child line))))
+      (close!? last-child line offset))))
 
 ;; add
 (defun _add!? (node line)

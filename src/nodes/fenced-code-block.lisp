@@ -17,10 +17,17 @@
    (code-fence-length :accessor code-fence-length :initarg :code-fence-length)
    (info-string :accessor info-string :initarg :info-string)))
 
-(defmethod close!? ((node fenced-code-block-node) line)
-  ;; close when call add!?
-  nil)
+;; close
+;; do not anything
+;; because if a line closes a node by close!?, this line open another fenced-code-block-node
+(defmethod close!? ((node fenced-code-block-node) line offset) nil)
 
+(defun is-closed-line (node line) ;; node :fenced-code-block-node
+  (let ((close-regexp (format nil "^ {0,3}~A{~A,} *$"
+                              (code-fence-character node) (code-fence-length node))))
+    (scan close-regexp line)))
+
+;; add
 (defmethod add!? ((node fenced-code-block-node) line offset)
   (declare (ignore offset))
   (cond ((is-closed-line node line)
@@ -36,6 +43,7 @@
                                  (subseq line 1))))
         (t (add-child node (trim-left-space-max-n line (code-fence-indent node))))))
 
+;; ->html
 (defmethod ->html ((node fenced-code-block-node))
   (let ((content (format nil "~{~A~%~}" (children node))))
     (format nil
@@ -45,17 +53,12 @@
                 "")
             content)))
 
+;;
 (defun get-code-fence (line)
   (or (second (multiple-value-list (is-backtick-fenced-code-block-line line)))
       (second (multiple-value-list (is-tilde-fenced-code-block-line line)))))
 
-(defun is-closed-line (node line) ;; node :fenced-code-block-node
-  (let ((close-regexp (format nil "^ {0,3}~A{~A,} *$"
-                              (code-fence-character node) (code-fence-length node))))
-    (scan close-regexp line)))
 
-
-;;
 (defun make-fenced-code-block-node (line)
   (let ((code-fence-info (get-code-fence line)))
     (if code-fence-info

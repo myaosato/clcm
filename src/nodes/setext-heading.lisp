@@ -12,12 +12,13 @@
 (defclass setext-heading-node (node)
   ((heading-level :accessor heading-level :initarg :heading-level :initform nil)))
 
-(defmethod close!? ((node setext-heading-node) line)
-  nil)
+;; close  not use
+;;(defmethod close!? ((node setext-heading-node) line offset) nil)
 
 ;; add  not use
 ;;(defmethod add!? ((node setext-heading-node) line offset) nil)
 
+;; ->html
 (defmethod ->html ((node setext-heading-node))
   (let ((content (format nil "~{~A~^~%~}" (children node))))
     (format nil
@@ -25,7 +26,6 @@
             (heading-level node)
             content
             (heading-level node))))
-
 
 ;;
 (defun is-setext-heading-level-1-line (line)

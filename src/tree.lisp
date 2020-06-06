@@ -33,7 +33,7 @@
     tree))
 
 (defun consumes-line (tree line)
-  (close!? (root tree) line) ;; side effects !!
+  (close!? (root tree) line 0) ;; side effects !!
   (add!? (root tree) line 0) ;; side effects !!
   tree)
 

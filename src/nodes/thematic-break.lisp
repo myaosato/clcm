@@ -12,15 +12,15 @@
 (defclass thematic-break-node (node)
   ())
 
-(defmethod close!? ((node thematic-break-node) line)
-  nil)
+;; close  not use
+;;(defmethod close!? ((node thematic-break-node) line offset)  nil)
 
 ;; add  not use
 ;;(defmethod add!? ((node thematic-break-node) line offset) nil)
 
+;; ->html
 (defmethod ->html ((node thematic-break-node))
   (format nil "<hr />~%"))
-
 
 ;;
 (defun is-thematic-break-line (line)
@@ -28,7 +28,6 @@
       (scan "^ {0,3}(?:_\\s*){3,}$" line)
       (scan "^ {0,3}(?:-\\s*){3,}$" line)))
 
-;;
 (defun attach-thematic-break!? (node line)
   (when (is-thematic-break-line line)
     (let ((child (make-instance 'thematic-break-node :is-open nil)))

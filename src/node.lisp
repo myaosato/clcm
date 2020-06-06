@@ -18,7 +18,7 @@
    (indent-level :accessor indent-level :initarg :indent-level :initform 0)
    (children :accessor children :initarg :children :initform nil)))
 
-(defgeneric close!? (node line))
+(defgeneric close!? (node line offset))
 (defgeneric add!? (node line offset))
 (defgeneric parses-inlines (node))
 (defgeneric ->html (node))

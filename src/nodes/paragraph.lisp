@@ -15,6 +15,7 @@
 (defclass paragraph-node (node)
   ())
 
+;; close
 (defun close-paragraph-line (line)
   (or (is-blank-line line)
       (and (not (is-setext-heading-level-2-line line))
@@ -25,10 +26,12 @@
       (is-html-block-line '(1 2 3 4 5 6) line)
       (is-block-quote-line line)))
 
-(defmethod close!? ((node paragraph-node) line)
+(defmethod close!? ((node paragraph-node) line offset)
+  (declare (ignore offset))
   (when (close-paragraph-line line)
     (close-node node)))
 
+;; add
 (defmethod add!? ((node paragraph-node) line offset)
   (declare (ignore offset))
   (cond ((is-setext-heading-level-1-line line)
@@ -42,6 +45,7 @@
         (t
          (add-child node (string-trim *white-space-characters* line)))))
 
+;; ->html
 (defmethod ->html ((node paragraph-node))
   (let ((content (format nil "~{~A~^~%~}" (children node))))
     (format nil "<p>~A</p>~%" content)))

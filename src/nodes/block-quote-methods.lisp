@@ -50,11 +50,11 @@
          (unless (is-block-quote-line line)
            (close-node node)))))
 
-(defmethod close!? ((node block-quote-node) line)
+(defmethod close!? ((node block-quote-node) line offset)
   (_close!? node line)
   (let ((last-child (last-child node)))
     (when (and last-child (is-open (last-child node)))
-      (close!? last-child (trim-block-quote-marker line)))))
+      (close!? last-child (trim-block-quote-marker line) offset))))
 
 ;; add
 (defun _add!? (node line)

@@ -14,10 +14,13 @@
 (defclass indented-code-block-node (node)
   ())
 
-(defmethod close!? ((node indented-code-block-node) line)
+;; close
+(defmethod close!? ((node indented-code-block-node) line offset)
+  (declare (ignore offset))
   (if (is-indented-code-block-close-line line)
       (close-node node)))
 
+;; add
 (defmethod add!? ((node indented-code-block-node) line offset)
   (declare (ignore offset))
   (if (scan "^ {0,3}$" line)
@@ -27,6 +30,7 @@
                          (aref 0))))
         (add-child node content))))
 
+;; ->html
 (defmethod ->html ((node indented-code-block-node))
   (let ((content (make-content node)))
   (format nil "<pre><code>~A</code></pre>~%" content)))
@@ -45,7 +49,6 @@
          (trim-left-blank-line (cdr list)))
         (t
          list)))
-
 
 ;;
 (defun is-indented-code-block-line (line)

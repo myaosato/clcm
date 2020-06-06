@@ -1,12 +1,10 @@
 (defpackage :clcm/nodes/html-block
   (:use :cl
         :clcm/line
+        :clcm/raw-html-regex
         :clcm/node)
   (:import-from :cl-ppcre
                 :scan)
-  (:import-from :clcm/raw-html-regex
-                :*open-tag*
-                :*closing-tag*)
   (:export :html-block-node
            :is-html-block-line
            :attach-html-block!?))
@@ -17,11 +15,14 @@
    ;; ref. https://spec.commonmark.org/0.29/#html-blocks
    ))
 
-(defmethod close!? ((node html-block-node) line)
+;; close
+(defmethod close!? ((node html-block-node) line offset)
+  (declare (ignore offset))
   (if (or (and (= (block-type node) 6) (is-blank-line line))
           (and (= (block-type node) 7) (is-blank-line line)))
       (close-node node)))
 
+;; add
 (defmethod add!? ((node html-block-node) line offset)
   (declare (ignore offset))
   (add-child node line)
@@ -32,6 +33,7 @@
           (and (= (block-type node) 5) (scan "]]>" line)))
       (close-node node)))
 
+;; ->html
 (defmethod ->html ((node html-block-node))
   (let ((content (format nil "~{~A~^~%~}" (children node))))
     (format nil "~A~%" content)))
