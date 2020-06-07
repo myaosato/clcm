@@ -43,10 +43,18 @@
               (t (list content (1+ indent))))))))
 
 ;; close
+(defun has-paragraph-as-last (node)
+  (let ((last-child (last-child node)))
+    (cond ((and (typep last-child 'paragraph-node) (is-open last-child))
+           t)
+          ((typep last-child 'block-quote-node)
+           (has-paragraph-as-last last-child))
+          (t nil))))
+
+
 (defun _close!? (node line offset)
   (let* ((last-child (last-child node))
-         (has-paragraph-as-last (and (typep last-child 'paragraph-node)
-                                     (is-open last-child)))
+         (has-paragraph-as-last (has-paragraph-as-last node))
          (is-block-quote-line (is-block-quote-line line offset)))
     (cond ((and (not has-paragraph-as-last) (not is-block-quote-line))
            (if (and last-child (is-open last-child))
@@ -66,7 +74,7 @@
 (defmethod close!? ((node block-quote-node) line offset)
   (_close!? node line offset) ;; <- last child paragraph checked here (*)
   (let ((last-child (last-child node)))
-    (when (and last-child (is-open last-child) (not (typep last-child 'paragraph-node)))
+    (when (and last-child (is-open last-child) (not (has-paragraph-as-last node)))
       (destructuring-bind (trimed-line child-offset) (trim-block-quote-marker line offset)
         (close!? last-child trimed-line child-offset)))))
 
@@ -86,7 +94,7 @@
   (let ((last-child (last-child node)))
     (when (not (and last-child (is-open last-child)))
       (return-from add!? (_add!? node line offset)))
-    (if (and (typep (last-child node) 'paragraph-node) (not (is-block-quote-line line offset)))
+    (if (and (has-paragraph-as-last node) (not (is-block-quote-line line offset)))
         ;; lazy continuation line
         (add!? last-child line offset)
         (destructuring-bind (trimed-line child-offset) (trim-block-quote-marker line offset)
