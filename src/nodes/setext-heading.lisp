@@ -29,7 +29,7 @@
 
 ;;
 (defun is-setext-heading-level-1-line (line)
-  (scan "^ {0,3}=+\\s*" line))
+  (scan "^ {0,3}=+\\s*$" line))
 
 (defun is-setext-heading-level-2-line (line)
-  (scan "^ {0,3}-+\\s*" line))
+  (scan "^ {0,3}-+\\s*$" line))
