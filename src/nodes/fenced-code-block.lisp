@@ -1,6 +1,7 @@
 (defpackage :clcm/nodes/fenced-code-block
   (:use :cl
         :clcm/utils
+        :clcm/line
         :clcm/node)
   (:import-from :cl-ppcre
                 :scan
@@ -22,26 +23,22 @@
 ;; because if a line closes a node by close!?, this line open another fenced-code-block-node
 (defmethod close!? ((node fenced-code-block-node) line offset) nil)
 
-(defun is-closed-line (node line) ;; node :fenced-code-block-node
-  (let ((close-regexp (format nil "^ {0,3}~A{~A,} *$"
-                              (code-fence-character node) (code-fence-length node))))
-    (scan close-regexp line)))
+(defun is-closed-line (node line offset) ;; node :fenced-code-block-node
+  (multiple-value-bind (indent content) (get-indented-depth-and-line line offset)
+    (and (<= indent 3)
+         (let ((close-regexp (format nil "^~A{~A,} *$"
+                                     (code-fence-character node) (code-fence-length node))))
+           (scan close-regexp content :start indent)))))
 
 ;; add
 (defmethod add!? ((node fenced-code-block-node) line offset)
-  (declare (ignore offset))
-  (cond ((is-closed-line node line)
-         (close-node node))
-        ((= (code-fence-indent node) 0)
-         (add-child node line))
-        ((string= line "")
-         (add-child node line))
-        ((char= (char line 0) #\Tab)
-         (add-child node
-                    (concatenate 'string
-                                 (repeat-char #\Space (- 4 (code-fence-indent node)))
-                                 (subseq line 1))))
-        (t (add-child node (trim-left-space-max-n line (code-fence-indent node))))))
+  (when (is-closed-line node line offset)
+    (close-node node)
+    (return-from add!?))
+  (multiple-value-bind (indent content) (get-indented-depth-and-line line offset)
+    (if (< indent (code-fence-indent node))
+        (add-child node (subseq content indent))
+        (add-child node (subseq content (code-fence-indent node))))))
 
 ;; ->html
 (defmethod ->html ((node fenced-code-block-node))
@@ -54,13 +51,13 @@
             content)))
 
 ;;
-(defun get-code-fence (line)
-  (or (second (multiple-value-list (is-backtick-fenced-code-block-line line)))
-      (second (multiple-value-list (is-tilde-fenced-code-block-line line)))))
+(defun get-code-fence (line offset)
+  (or (is-backtick-fenced-code-block-line line offset)
+      (is-tilde-fenced-code-block-line line offset)))
 
 
-(defun make-fenced-code-block-node (line)
-  (let ((code-fence-info (get-code-fence line)))
+(defun make-fenced-code-block-node (line offset)
+  (let ((code-fence-info (get-code-fence line offset)))
     (if code-fence-info
         (make-instance 'fenced-code-block-node
                        :code-fence-indent (length (aref code-fence-info 0))
@@ -68,15 +65,23 @@
                        :code-fence-length (length (aref code-fence-info 1))
                        :info-string (aref code-fence-info 2)))))
 
-(defun is-backtick-fenced-code-block-line (line)
-  (scan-to-strings "^( {0,3})(`{3,})\\s*([^`\\s]*)(?:\\s[^`]*)?$" line))
+(defun is-backtick-fenced-code-block-line (line offset)
+  (multiple-value-bind (indent content) (get-indented-depth-and-line line offset)
+    (if (and (<= indent 3) (scan "^ {0,3}`{3,}" content))
+        (-> 
+         (multiple-value-list (scan-to-strings "^( {0,3})(`{3,})\\s*([^`\\s]*)(?:\\s[^`]*)?$" content))
+         (second)))))
 
-(defun is-tilde-fenced-code-block-line (line)
-  (scan-to-strings "^( {0,3})(~{3,})\\s*([^\\s]*)(?:\\s.*)?$" line))
+(defun is-tilde-fenced-code-block-line (line offset)
+  (multiple-value-bind (indent content) (get-indented-depth-and-line line offset)
+    (if (and (<= indent 3) (scan "^ {0,3}~{3,}" content))
+        (-> 
+         (multiple-value-list (scan-to-strings "^( {0,3})(~{3,})\\s*([^\\s]*)(?:\\s.*)?$" content))
+         (second)))))
 
-(defun attach-fenced-code-block!? (node line)
-  (when (or (is-backtick-fenced-code-block-line line)
-            (is-tilde-fenced-code-block-line line))
-    (let ((child (make-fenced-code-block-node line)))
+(defun attach-fenced-code-block!? (node line offset)
+  (when (or (is-backtick-fenced-code-block-line line offset)
+            (is-tilde-fenced-code-block-line line offset))
+    (let ((child (make-fenced-code-block-node line offset)))
       (add-child node child)
       child)))

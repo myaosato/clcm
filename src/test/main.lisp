@@ -60,4 +60,4 @@
     (:atx-heading (test-range 32 49))
     (:setext-heading (test-range 50 76))
     (:indented-code-block (test-range 77 88))
-    ))
+    (:fenced-code-block (test-range 89 117))))

@@ -20,8 +20,8 @@
   (or (is-blank-line line)
       (is-thematic-break-line line offset)
       (is-atx-heading-line line offset)
-      (is-backtick-fenced-code-block-line line)
-      (is-tilde-fenced-code-block-line line)
+      (is-backtick-fenced-code-block-line line offset)
+      (is-tilde-fenced-code-block-line line offset)
       (is-html-block-line '(1 2 3 4 5 6) line)
       (is-block-quote-line line offset)))
 
@@ -77,7 +77,7 @@
         (attach-thematic-break!? node trimed-line child-offset)
         (attach-atx-heading!? node trimed-line child-offset)
         (attach-indented-code-block!? node trimed-line child-offset)
-        (attach-fenced-code-block!? node trimed-line)
+        (attach-fenced-code-block!? node trimed-line child-offset)
         (attach-html-block!? node trimed-line)
         (attach-block-quote!? node trimed-line child-offset)
         (attach-paragraph! node trimed-line :can-change-heading nil))))
@@ -90,8 +90,7 @@
         ;; lazy continuation line
         (add!? last-child line offset)
         (destructuring-bind (trimed-line child-offset) (trim-block-quote-marker line offset)
-          (if (typep (last-child node) 'paragraph-node)
-              (add!? last-child trimed-line child-offset))))))
+          (add!? last-child trimed-line child-offset)))))
 
 ;; ->html
 (defmethod ->html ((node block-quote-node))
