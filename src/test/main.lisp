@@ -50,6 +50,10 @@
 
 (defun test-range (start end)
   (loop :for ind :from start :to end
-        :do (multiple-value-bind (res disp) (clcm/test:test-for ind)
-              (unless res
-                (format t "~A:~%~A~%~%" ind disp)))))
+        :do (format t "~A: ~A~%" ind (clcm/test:test-for ind))))
+
+(defun test-section (key)
+  (case key
+    (:tabs (test-range 1 11))
+    (:precedence (test-range 12 12))
+    (:thematic-breaks (test-range 13 31))))

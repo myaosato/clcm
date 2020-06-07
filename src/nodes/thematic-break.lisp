@@ -1,5 +1,6 @@
 (defpackage :clcm/nodes/thematic-break
   (:use :cl
+        :clcm/line
         :clcm/node)
   (:import-from :cl-ppcre
                 :scan)
@@ -23,13 +24,15 @@
   (format nil "<hr />~%"))
 
 ;;
-(defun is-thematic-break-line (line)
-  (or (scan "^ {0,3}(?:\\*\\s*){3,}$" line)
-      (scan "^ {0,3}(?:_\\s*){3,}$" line)
-      (scan "^ {0,3}(?:-\\s*){3,}$" line)))
+(defun is-thematic-break-line (line offset)
+  (multiple-value-bind (indent contents) (get-indented-depth-and-line line offset)
+    (and (<= indent 3) 
+         (or (scan "^(?:\\*\\s*){3,}$" line :start indent)
+             (scan "^(?:_\\s*){3,}$" line :start indent)
+             (scan "^(?:-\\s*){3,}$" line :start indent)))))
 
-(defun attach-thematic-break!? (node line)
-  (when (is-thematic-break-line line)
+(defun attach-thematic-break!? (node line offset)
+  (when (is-thematic-break-line line offset)
     (let ((child (make-instance 'thematic-break-node :is-open nil)))
       (add-child node child)
       child)))

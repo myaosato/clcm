@@ -27,7 +27,7 @@
 ;; add
 (defun _add!? (node line offset)
   (or (skip-blank-line? line)
-      (attach-thematic-break!? node line)
+      (attach-thematic-break!? node line offset)
       (attach-atx-heading!? node line)
       (attach-indented-code-block!? node line)
       (attach-fenced-code-block!? node line)

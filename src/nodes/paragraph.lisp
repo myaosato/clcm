@@ -19,7 +19,7 @@
 (defun close-paragraph-line (line offset)
   (or (is-blank-line line)
       (and (not (is-setext-heading-level-2-line line))
-           (is-thematic-break-line line))
+           (is-thematic-break-line line offset))
       (is-atx-heading-line line)
       (is-backtick-fenced-code-block-line line)
       (is-tilde-fenced-code-block-line line)

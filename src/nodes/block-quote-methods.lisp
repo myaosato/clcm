@@ -18,7 +18,7 @@
 ;; for paragraph in block quote
 (defun close-paragraph-line (line offset)
   (or (is-blank-line line)
-      (is-thematic-break-line line)
+      (is-thematic-break-line line offset)
       (is-atx-heading-line line)
       (is-backtick-fenced-code-block-line line)
       (is-tilde-fenced-code-block-line line)
@@ -74,7 +74,7 @@
 (defun _add!? (node line offset)
   (destructuring-bind (trimed-line child-offset) (trim-block-quote-marker line offset)
     (or (skip-blank-line? trimed-line)
-        (attach-thematic-break!? node trimed-line)
+        (attach-thematic-break!? node trimed-line child-offset)
         (attach-atx-heading!? node trimed-line)
         (attach-indented-code-block!? node trimed-line)
         (attach-fenced-code-block!? node trimed-line)
