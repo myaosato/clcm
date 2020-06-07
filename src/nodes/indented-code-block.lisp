@@ -16,19 +16,15 @@
 
 ;; close
 (defmethod close!? ((node indented-code-block-node) line offset)
-  (declare (ignore offset))
-  (if (is-indented-code-block-close-line line)
+  (if (is-indented-code-block-close-line line offset)
       (close-node node)))
 
 ;; add
 (defmethod add!? ((node indented-code-block-node) line offset)
-  (declare (ignore offset))
-  (if (scan "^ {0,3}$" line)
-      (add-child node "")
-      (let ((content (-> (multiple-value-list (scan-to-strings "^(?: {0,3}\\t|    )(.*)$" line))
-                         (cadr)
-                         (aref 0))))
-        (add-child node content))))
+  (multiple-value-bind (indent content) (get-indented-depth-and-line line offset)
+    (if (<= indent 3)
+        (add-child node "")
+        (add-child node (subseq content 4)))))
 
 ;; ->html
 (defmethod ->html ((node indented-code-block-node))
@@ -51,15 +47,17 @@
          list)))
 
 ;;
-(defun is-indented-code-block-line (line)
-  (scan "^(?: {0,3}\\t|    )" line))
+(defun is-indented-code-block-line (line offset)
+  (let ((indent (get-indented-depth-of line offset)))
+    (>= indent 4)))
 
-(defun is-indented-code-block-close-line (line)
-  (scan "^ {0,3}\\S" line))
+(defun is-indented-code-block-close-line (line offset)
+  (let ((indent (get-indented-depth-of line offset)))
+    (and (not (is-blank-line line)) (< indent 3))))
 
-(defun attach-indented-code-block!? (node line)
-  (when (is-indented-code-block-line line)
+(defun attach-indented-code-block!? (node line offset)
+  (when (is-indented-code-block-line line offset)
     (let ((child (make-instance 'indented-code-block-node)))
       (add-child node child)
-      (add!? child line 0)
+      (add!? child line offset)
       child)))

@@ -56,4 +56,8 @@
   (case key
     (:tabs (test-range 1 11))
     (:precedence (test-range 12 12))
-    (:thematic-breaks (test-range 13 31))))
+    (:thematic-breaks (test-range 13 31))
+    (:atx-heading (test-range 32 49))
+    (:setext-heading (test-range 50 76))
+    (:indented-code-block (test-range 77 88))
+    ))

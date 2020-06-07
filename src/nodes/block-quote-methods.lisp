@@ -76,7 +76,7 @@
     (or (skip-blank-line? trimed-line)
         (attach-thematic-break!? node trimed-line child-offset)
         (attach-atx-heading!? node trimed-line child-offset)
-        (attach-indented-code-block!? node trimed-line)
+        (attach-indented-code-block!? node trimed-line child-offset)
         (attach-fenced-code-block!? node trimed-line)
         (attach-html-block!? node trimed-line)
         (attach-block-quote!? node trimed-line child-offset)

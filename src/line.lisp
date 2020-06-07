@@ -63,7 +63,8 @@
                      (incf depth-real))
                     (t (return-from search (values depth-logical depth-real))))
           :if (> depth-logical 3)
-          :return (values depth-logical depth-real))))
+          :return (values depth-logical depth-real))
+    (values depth-logical depth-real)))
 
 (defun get-indented-depth-and-line (line offset)
   (multiple-value-bind (depth-logical depth-real) (get-indented-depth-of line offset)

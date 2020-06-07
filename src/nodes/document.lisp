@@ -29,7 +29,7 @@
   (or (skip-blank-line? line)
       (attach-thematic-break!? node line offset)
       (attach-atx-heading!? node line offset)
-      (attach-indented-code-block!? node line)
+      (attach-indented-code-block!? node line offset)
       (attach-fenced-code-block!? node line)
       (attach-html-block!? node line)
       (attach-block-quote!? node line offset)

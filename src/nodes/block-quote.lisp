@@ -14,8 +14,8 @@
 
 ;; block quote
 (defun is-block-quote-line (line offset)
-  (multiple-value-bind (indent offset) (get-indented-depth-of line offset)
-    (and (<= indent 3) (scan "^>" line :start indent))))
+  (multiple-value-bind (indent content) (get-indented-depth-and-line line offset)
+    (and (<= indent 3) (scan "^>" content :start indent))))
 
 (defun attach-block-quote!? (node line offset)
   (when (is-block-quote-line line offset)
