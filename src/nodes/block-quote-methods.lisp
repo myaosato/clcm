@@ -27,9 +27,9 @@
 
 (defun trim-block-quote-marker (line offset)
   ;; return (TRIMED-CONTENTS OFFSET)
-  (multiple-value-bind (indent offset) (get-indented-depth-of line offset)
+  (multiple-value-bind (indent _line) (get-indented-depth-and-line line offset)
     (if (>= indent 4) (error "line is not block-quote-line: ~A" line))
-    (multiple-value-bind (has-marker contents) (scan-to-strings "^>(.*)" line :start indent)
+    (multiple-value-bind (has-marker contents) (scan-to-strings "^>(.*)" _line :start indent)
       (if (not has-marker) (error "line is not block-quote-line: ~A" line))
       (let ((content (aref contents 0)))
         ;; return (TRIMED-CONTENTS OFFSET)
