@@ -25,22 +25,21 @@
       (close!? last-child line offset))))
 
 ;; add
-(defun _add!? (node line)
+(defun _add!? (node line offset)
   (or (skip-blank-line? line)
       (attach-thematic-break!? node line)
       (attach-atx-heading!? node line)
       (attach-indented-code-block!? node line)
       (attach-fenced-code-block!? node line)
       (attach-html-block!? node line)
-      (attach-block-quote!? node line)
+      (attach-block-quote!? node line offset)
       (attach-paragraph! node line)))
 
 (defmethod add!? ((node document-node) line offset)
-  (declare (ignore offset))
   (let ((last-child (last-child node)))
     (if (and last-child (is-open last-child))
-        (add!? last-child line 0)
-        (_add!? node line))))
+        (add!? last-child line offset)
+        (_add!? node line offset))))
 
 ;; html
 (defmethod ->html ((node document-node))

@@ -13,10 +13,10 @@
 (in-package :clcm/nodes/paragraph)
 
 (defclass paragraph-node (node)
-  ())
+  ((can-change-heading :accessor can-change-heading :initarg :can-change-heading :initform t)))
 
 ;; close
-(defun close-paragraph-line (line)
+(defun close-paragraph-line (line offset)
   (or (is-blank-line line)
       (and (not (is-setext-heading-level-2-line line))
            (is-thematic-break-line line))
@@ -24,21 +24,20 @@
       (is-backtick-fenced-code-block-line line)
       (is-tilde-fenced-code-block-line line)
       (is-html-block-line '(1 2 3 4 5 6) line)
-      (is-block-quote-line line)))
+      (is-block-quote-line line offset)))
 
 (defmethod close!? ((node paragraph-node) line offset)
-  (declare (ignore offset))
-  (when (close-paragraph-line line)
+  (when (close-paragraph-line line offset)
     (close-node node)))
 
 ;; add
 (defmethod add!? ((node paragraph-node) line offset)
   (declare (ignore offset))
-  (cond ((is-setext-heading-level-1-line line)
+  (cond ((and (is-setext-heading-level-1-line line) (can-change-heading node))
          (change-class node 'setext-heading-node)
          (setf (heading-level node) 1)
          (close-node node))
-        ((is-setext-heading-level-2-line line)
+        ((and (is-setext-heading-level-2-line line) (can-change-heading node))
          (change-class node 'setext-heading-node)
          (setf (heading-level node) 2)
          (close-node node))
@@ -50,8 +49,8 @@
   (let ((content (format nil "~{~A~^~%~}" (children node))))
     (format nil "<p>~A</p>~%" content)))
 
-(defun attach-paragraph! (node line)
-  (let ((child (make-instance 'paragraph-node)))
+(defun attach-paragraph! (node line &key (can-change-heading t))
+  (let ((child (make-instance 'paragraph-node :can-change-heading can-change-heading)))
     (add-child node child)
     (add!? child line 0)
     child))
