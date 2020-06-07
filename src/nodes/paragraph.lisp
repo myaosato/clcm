@@ -33,11 +33,11 @@
 ;; add
 (defmethod add!? ((node paragraph-node) line offset)
   (declare (ignore offset))
-  (cond ((and (is-setext-heading-level-1-line line) (can-change-heading node))
+  (cond ((and (is-setext-heading-level-1-line line) (children node) (can-change-heading node))
          (change-class node 'setext-heading-node)
          (setf (heading-level node) 1)
          (close-node node))
-        ((and (is-setext-heading-level-2-line line) (can-change-heading node))
+        ((and (is-setext-heading-level-2-line line) (children node) (can-change-heading node))
          (change-class node 'setext-heading-node)
          (setf (heading-level node) 2)
          (close-node node))
