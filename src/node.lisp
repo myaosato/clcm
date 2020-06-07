@@ -15,7 +15,6 @@
 
 (defclass node ()
   ((is-open :accessor is-open :initarg :is-open :initform t)
-   (indent-level :accessor indent-level :initarg :indent-level :initform 0)
    (children :accessor children :initarg :children :initform nil)))
 
 (defgeneric close!? (node line offset))

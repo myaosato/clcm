@@ -27,9 +27,9 @@
 (defun is-thematic-break-line (line offset)
   (multiple-value-bind (indent contents) (get-indented-depth-and-line line offset)
     (and (<= indent 3) 
-         (or (scan "^(?:\\*\\s*){3,}$" line :start indent)
-             (scan "^(?:_\\s*){3,}$" line :start indent)
-             (scan "^(?:-\\s*){3,}$" line :start indent)))))
+         (or (scan "^(?:\\*\\s*){3,}$" contents :start indent)
+             (scan "^(?:_\\s*){3,}$" contents :start indent)
+             (scan "^(?:-\\s*){3,}$" contents :start indent)))))
 
 (defun attach-thematic-break!? (node line offset)
   (when (is-thematic-break-line line offset)
