@@ -22,7 +22,7 @@
       (is-atx-heading-line line offset)
       (is-backtick-fenced-code-block-line line offset)
       (is-tilde-fenced-code-block-line line offset)
-      (is-html-block-line '(1 2 3 4 5 6) line)
+      (is-html-block-line '(1 2 3 4 5 6) line offset)
       (is-block-quote-line line offset)))
 
 (defun trim-block-quote-marker (line offset)
@@ -78,7 +78,7 @@
         (attach-atx-heading!? node trimed-line child-offset)
         (attach-indented-code-block!? node trimed-line child-offset)
         (attach-fenced-code-block!? node trimed-line child-offset)
-        (attach-html-block!? node trimed-line)
+        (attach-html-block!? node trimed-line child-offset)
         (attach-block-quote!? node trimed-line child-offset)
         (attach-paragraph! node trimed-line :can-change-heading nil))))
 

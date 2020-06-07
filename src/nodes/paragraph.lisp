@@ -23,7 +23,7 @@
       (is-atx-heading-line line offset)
       (is-backtick-fenced-code-block-line line offset)
       (is-tilde-fenced-code-block-line line offset)
-      (is-html-block-line '(1 2 3 4 5 6) line)
+      (is-html-block-line '(1 2 3 4 5 6) line offset)
       (is-block-quote-line line offset)))
 
 (defmethod close!? ((node paragraph-node) line offset)

@@ -31,7 +31,7 @@
       (attach-atx-heading!? node line offset)
       (attach-indented-code-block!? node line offset)
       (attach-fenced-code-block!? node line offset)
-      (attach-html-block!? node line)
+      (attach-html-block!? node line offset)
       (attach-block-quote!? node line offset)
       (attach-paragraph! node line)))
 
