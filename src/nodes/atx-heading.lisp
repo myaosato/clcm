@@ -1,5 +1,6 @@
 (defpackage :clcm/nodes/atx-heading
   (:use :cl
+        :clcm/line
         :clcm/utils
         :clcm/node)
   (:import-from :cl-ppcre
@@ -19,7 +20,8 @@
 ;; add
 (defun get-content (line)
   (->> line ; "  ###  ho  ge  ## "
-       (string-trim '(#\Space)) ; "###  ho  ge  ##"
+       (string-left-trim '(#\Space #\Tab)) ; "###  ho  ge  ## "
+       (string-right-trim '(#\Space)) ; "###  ho  ge  ##"
        (string-left-trim '(#\#)) ; "  ho  ge  ##"
        (trim-closing-sequence) ; "  ho  ge  "
        (string-trim '(#\Space #\Tab)))); "ho  ge"
@@ -36,7 +38,6 @@
         (level (get-level line)))
     (setf (heading-level node) level)
     (setf (children node) (list content))))
-
 
 ;; html
 (defun trim-closing-sequence (line)
@@ -55,14 +56,14 @@
             content
             (heading-level node))))
 
-
 ;;
-(defun is-atx-heading-line (line)
-  (scan "^ {0,3}#{1,6}(\\t| |$)" line))
+(defun is-atx-heading-line (line offset)
+  (multiple-value-bind (indent content) (get-indented-depth-and-line line offset)
+    (and (<= indent 3) (scan "^#{1,6}(\\t| |$)" content :start indent))))
 
-(defun attach-atx-heading!? (node line)
-  (when (is-atx-heading-line line)
+(defun attach-atx-heading!? (node line offset)
+  (when (is-atx-heading-line line offset)
     (let ((child (make-instance 'atx-heading-node :is-open nil)))
       (add-child node child)
-      (add!? child line 0)
+      (add!? child line offset)
       child)))

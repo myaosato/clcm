@@ -20,7 +20,7 @@
   (or (is-blank-line line)
       (and (not (is-setext-heading-level-2-line line))
            (is-thematic-break-line line offset))
-      (is-atx-heading-line line)
+      (is-atx-heading-line line offset)
       (is-backtick-fenced-code-block-line line)
       (is-tilde-fenced-code-block-line line)
       (is-html-block-line '(1 2 3 4 5 6) line)
