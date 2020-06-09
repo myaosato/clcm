@@ -3,13 +3,15 @@
         :clcm/utils
         :clcm/line
         :clcm/node
+        :clcm/container-utils
         :clcm/nodes/thematic-break
         :clcm/nodes/atx-heading
         :clcm/nodes/indented-code-block
         :clcm/nodes/fenced-code-block
         :clcm/nodes/html-block
         :clcm/nodes/paragraph
-        :clcm/nodes/block-quote)
+        :clcm/nodes/block-quote
+        :clcm/nodes/bullet-list)
   (:import-from :cl-ppcre
                 :scan-to-strings)
   (:export :trim-block-quote-marker))
@@ -43,15 +45,6 @@
               (t (list content (1+ indent))))))))
 
 ;; close
-(defun has-paragraph-as-last (node)
-  (let ((last-child (last-child node)))
-    (cond ((and (typep last-child 'paragraph-node) (is-open last-child))
-           t)
-          ((typep last-child 'block-quote-node)
-           (has-paragraph-as-last last-child))
-          (t nil))))
-
-
 (defun _close!? (node line offset)
   (let* ((last-child (last-child node))
          (has-paragraph-as-last (has-paragraph-as-last node))
@@ -88,6 +81,7 @@
         (attach-fenced-code-block!? node trimed-line child-offset)
         (attach-html-block!? node trimed-line child-offset)
         (attach-block-quote!? node trimed-line child-offset)
+        (attach-bullet-list!? node trimed-line child-offset)
         (attach-paragraph! node trimed-line :can-change-heading nil))))
 
 (defmethod add!? ((node block-quote-node) line offset)
