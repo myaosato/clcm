@@ -25,7 +25,8 @@
       (is-backtick-fenced-code-block-line line offset)
       (is-tilde-fenced-code-block-line line offset)
       (is-html-block-line '(1 2 3 4 5 6) line offset)
-      (is-block-quote-line line offset)))
+      (is-block-quote-line line offset)
+      (is-bullet-list-line line offset)))
 
 (defun trim-block-quote-marker (line offset)
   ;; return (TRIMED-CONTENTS OFFSET)

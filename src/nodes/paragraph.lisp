@@ -7,7 +7,8 @@
         :clcm/nodes/setext-heading
         :clcm/nodes/fenced-code-block
         :clcm/nodes/html-block
-        :clcm/nodes/block-quote)
+        :clcm/nodes/block-quote
+        :clcm/nodes/bullet-list)
   (:export :paragraph-node
            :attach-paragraph!))
 (in-package :clcm/nodes/paragraph)
@@ -24,7 +25,8 @@
       (is-backtick-fenced-code-block-line line offset)
       (is-tilde-fenced-code-block-line line offset)
       (is-html-block-line '(1 2 3 4 5 6) line offset)
-      (is-block-quote-line line offset)))
+      (is-block-quote-line line offset)
+      (is-bullet-list-line line offset)))
 
 (defmethod close!? ((node paragraph-node) line offset)
   (when (close-paragraph-line line offset)

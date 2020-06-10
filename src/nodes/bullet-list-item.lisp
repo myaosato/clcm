@@ -1,5 +1,6 @@
 (defpackage :clcm/nodes/bullet-list-item
   (:use :cl
+        :clcm/utils
         :clcm/line
         :clcm/node)
   (:import-from :cl-ppcre
@@ -14,9 +15,9 @@
 
 (defun attach-bullet-list-item! (node line offset)
   (multiple-value-bind (indent content) (get-indented-depth-and-line line offset)
-    (let* ((list-item-offset (if (or (is-blank-line content) (>= indent 4)) 0 indent))
+    (let* ((list-item-offset (+ (if (or (is-blank-line content) (>= indent 4)) 0 indent) offset))
            (child (make-instance 'bullet-list-item-node :offset list-item-offset)))
       (add-child node child)
       (unless (is-blank-line content)
-       (add!? child (subseq content list-item-offset) list-item-offset))
+       (add!? child (concatenate 'string (repeat-char #\Space offset) content) list-item-offset))
       child)))

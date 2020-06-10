@@ -26,7 +26,7 @@
 (defmethod close!? ((node bullet-list-node) line offset)
   (close!? (last-child node) line offset)
   (let ((marker-pos (is-bullet-list-line line offset)))
-    (unless (or (and marker-pos (char line marker-pos))
+    (unless (or (and marker-pos (char= (char line marker-pos) (marker node)))
                 (and (is-open (last-child node))))
       (close-node node))))
 

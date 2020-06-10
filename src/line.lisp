@@ -49,7 +49,7 @@
 
 
 ;; indent
-(defun get-indented-depth-of (line offset)
+(defun get-indented-depth-of (line offset &key (limit 4))
   (if (= 0 (length line)) (return-from get-indented-depth-of (values 0 0)))
   (let ((depth-logical 0)
         (depth-real 0))
@@ -62,12 +62,12 @@
                      (incf depth-logical (- 4 (rem (+ offset depth-logical) 4)))
                      (incf depth-real))
                     (t (return-from search (values depth-logical depth-real))))
-          :if (> depth-logical 3)
+          :if (>= depth-logical limit)
           :return (values depth-logical depth-real))
     (values depth-logical depth-real)))
 
-(defun get-indented-depth-and-line (line offset)
-  (multiple-value-bind (depth-logical depth-real) (get-indented-depth-of line offset)
+(defun get-indented-depth-and-line (line offset &key (limit 4))
+  (multiple-value-bind (depth-logical depth-real) (get-indented-depth-of line offset :limit limit)
     (values depth-logical
             (concatenate 'string
                          (repeat-char #\Space depth-logical)

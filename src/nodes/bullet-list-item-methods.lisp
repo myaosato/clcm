@@ -25,21 +25,27 @@
       (is-backtick-fenced-code-block-line line offset)
       (is-tilde-fenced-code-block-line line offset)
       (is-html-block-line '(1 2 3 4 5 6) line offset)
-      (is-block-quote-line line offset)))
+      (is-block-quote-line line offset)
+      (is-bullet-list-line line offset)))
 
 ;; close
 (defmethod close!? ((node bullet-list-item-node) line offset)
-  (multiple-value-bind (indent content) (get-indented-depth-and-line line offset)
-    (if (or (and (has-paragraph-as-last node) (close-paragraph-line line offset))
-            (and (not (has-paragraph-as-last node)) (< indent (offset node))))
+  (multiple-value-bind (indent) (get-indented-depth-and-line line offset :limit (offset node))
+    (if (and (not (is-blank-line line))
+             (or (and (has-paragraph-as-last node) (close-paragraph-line line offset))
+                 (and (not (has-paragraph-as-last node)) (< indent (offset node)))))
         (close-node node))))
 
 ;; add
 (defmethod add!? ((node bullet-list-item-node) line offset)
-  (multiple-value-bind (indent content) (get-indented-depth-and-line line offset)
+  (multiple-value-bind (indent content) (get-indented-depth-and-line line offset :limit (offset node))
     (declare (ignore indent))
-    (let ((trimed-line (subseq content (offset node)))
-          (child-offset (offset node)))
+    (let ((trimed-line (if (is-blank-line line)
+                           content
+                           (subseq content (offset node))))
+          (child-offset (if (is-blank-line line)
+                            0
+                            (offset node))))
       (or (skip-blank-line? trimed-line)
           (attach-thematic-break!? node trimed-line child-offset)
           (attach-atx-heading!? node trimed-line child-offset)
