@@ -1,7 +1,8 @@
 (defpackage :clcm/nodes/bullet-list
   (:use :cl
         :clcm/line
-        :clcm/node)
+        :clcm/node
+        :clcm/nodes/list)
   (:import-from :cl-ppcre
                 :scan)
   (:export :bullet-list-node
@@ -11,9 +12,8 @@
            :attach-bullet-list!?))
 (in-package :clcm/nodes/bullet-list)
 
-(defclass bullet-list-node (node)
-  ((marker :accessor marker :initarg :marker)
-   (is-tight :accessor is-tight :initarg :is-tight :initform t)))
+(defclass bullet-list-node (list-node)
+  ())
 
 ;; block quote
 (defun is-bullet-list-line (line offset)
