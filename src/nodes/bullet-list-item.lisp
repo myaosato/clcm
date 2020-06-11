@@ -7,11 +7,13 @@
                 :scan)
   (:export :bullet-list-item-node
            :offset
+           :parent-is-tight
            :attach-bullet-list-item!))
 (in-package :clcm/nodes/bullet-list-item)
 
 (defclass bullet-list-item-node (node)
-  ((offset :accessor offset :initarg :offset)))
+  ((offset :accessor offset :initarg :offset)
+   (parent-is-tight :accessor parent-is-tight :initarg :parent-is-tight :initform t)))
 
 (defun attach-bullet-list-item! (node line offset)
   (multiple-value-bind (indent content) (get-indented-depth-and-line line offset)

@@ -28,6 +28,8 @@
   (let ((marker-pos (is-bullet-list-line line offset)))
     (unless (or (and marker-pos (char= (char line marker-pos) (marker node)))
                 (and (is-open (last-child node))))
+      (if (find-if (lambda (item) (>= (length (children item)) 2)) (children node))
+          (setf (is-tight node) nil))
       (close-node node))))
 
 ;; add
@@ -37,11 +39,20 @@
 
 (defmethod add!? ((node bullet-list-node) line offset)
   (let ((last-child (last-child node)))
+    (cond ((and (is-tight node) (is-blank-line line))
+           (setf (is-tight node) 'foo))
+          ((and (eq (is-tight node) 'foo) (not (and last-child (is-open last-child))))
+           (setf (is-tight node) nil))
+          ((eq (is-tight node) 'foo)
+           (setf (is-tight node) t)))
     (if (not (and last-child (is-open last-child)))
         (_add!? node line offset)
         (add!? last-child line offset))))
 
 ;; ->html
 (defmethod ->html ((node bullet-list-node))
+  (unless (is-tight node)
+    (loop :for child :in (children node)
+          :do (setf (parent-is-tight child) nil)))
   (format nil "<ul>~%~{~A~}</ul>~%"
           (mapcar #'->html (children node))))

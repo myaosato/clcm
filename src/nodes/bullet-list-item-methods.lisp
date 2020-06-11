@@ -64,6 +64,7 @@
 
 ;; ->html
 (defmethod ->html ((node bullet-list-item-node))
-  ;; TODO
-  (format nil "<li>~%~{~A~}</li>~%"
-          (mapcar #'->html (children node))))
+  (if (and (parent-is-tight node)
+           (typep (first (children node)) 'paragraph-node))
+      (format nil "<li>~{~A~^~%~}</li>~%" (children (first (children node))))
+      (format nil "<li>~%~{~A~}</li>~%" (mapcar #'->html (children node)))))
