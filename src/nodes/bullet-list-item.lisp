@@ -19,5 +19,7 @@
            (child (make-instance 'bullet-list-item-node :offset list-item-offset)))
       (add-child node child)
       (unless (is-blank-line content)
-       (add!? child (concatenate 'string (repeat-char #\Space offset) content) list-item-offset))
+       (add!? child
+              (concatenate 'string (repeat-char #\Space (- list-item-offset offset)) content)
+              offset))
       child)))

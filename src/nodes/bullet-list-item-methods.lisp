@@ -30,11 +30,17 @@
 
 ;; close
 (defmethod close!? ((node bullet-list-item-node) line offset)
-  (multiple-value-bind (indent) (get-indented-depth-and-line line offset :limit (offset node))
-    (if (and (not (is-blank-line line))
-             (or (and (has-paragraph-as-last node) (close-paragraph-line line offset))
-                 (and (not (has-paragraph-as-last node)) (< indent (offset node)))))
-        (close-node node))))
+  (multiple-value-bind (indent content) (get-indented-depth-and-line line offset :limit (offset node))
+    (cond ((is-blank-line line)
+           (if (last-child node)
+               (close!? (last-child node) line offset)))
+          ((has-paragraph-as-last node)
+           (if (close-paragraph-line line offset)
+               (close-node node)))
+          ((< indent (offset node))
+           (close-node node))
+          ((last-child node)
+           (close!? (last-child node) (subseq content (- (offset node) offset)) offset)))))
 
 ;; add
 (defmethod add!? ((node bullet-list-item-node) line offset)
@@ -42,7 +48,7 @@
     (declare (ignore indent))
     (let ((trimed-line (if (is-blank-line line)
                            content
-                           (subseq content (offset node))))
+                           (subseq content (- (offset node) offset))))
           (child-offset (if (is-blank-line line)
                             0
                             (offset node))))
