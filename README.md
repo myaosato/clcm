@@ -20,8 +20,8 @@ Common Lisp CommonMark
 - [x] Paragraphs
 - [x] Blank lines
 - [x] Block quotes
-- [ ] List items
-- [ ] Lists
+- [x] List items
+- [x] Lists
 
 ### Inlines
 

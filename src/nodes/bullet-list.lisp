@@ -13,7 +13,7 @@
 (in-package :clcm/nodes/bullet-list)
 
 (defclass bullet-list-node (list-node)
-  ())
+  ((marker :accessor marker :initarg :marker)))
 
 ;; block quote
 (defun is-bullet-list-line (line offset)

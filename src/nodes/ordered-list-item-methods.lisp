@@ -1,4 +1,4 @@
-(defpackage :clcm/nodes/bullet-list-item-methods
+(defpackage :clcm/nodes/ordered-list-item-methods
   (:use :cl
         :clcm/line
         :clcm/node
@@ -11,12 +11,12 @@
         :clcm/nodes/paragraph
         :clcm/nodes/block-quote
         :clcm/nodes/bullet-list
-        :clcm/nodes/bullet-list-item
-        :clcm/nodes/ordered-list)
+        :clcm/nodes/ordered-list
+        :clcm/nodes/ordered-list-item)
   (:import-from :cl-ppcre
                 :scan)
   (:export))
-(in-package :clcm/nodes/bullet-list-item-methods)
+(in-package :clcm/nodes/ordered-list-item-methods)
 
 ;; for paragraph in block quote
 (defun close-paragraph-line (line offset)
@@ -31,18 +31,18 @@
       (is-ordered-list-line line offset)))
 
 ;; close
-(defmethod close!? ((node bullet-list-item-node) line offset)
+(defmethod close!? ((node ordered-list-item-node) line offset)
   (multiple-value-bind (indent content) (get-indented-depth-and-line line offset :limit (offset node))
     (cond ((is-blank-line line)
            (if (last-child node)
                (close!? (last-child node) line offset)))
           ((< indent (- (offset node) offset))
            (close-node node))
-          ((and (last-child node) (is-open (last-child node)))
+          ((last-child node)
            (close!? (last-child node) (subseq content (- (offset node) offset)) (offset node))))))
 
 ;; add
-(defmethod add!? ((node bullet-list-item-node) line offset)
+(defmethod add!? ((node ordered-list-item-node) line offset)
   (multiple-value-bind (indent content) (get-indented-depth-and-line line offset :limit (offset node))
     (declare (ignore indent))
     (let ((trimed-line (if (is-blank-line line)
@@ -67,7 +67,7 @@
                  (attach-paragraph! node trimed-line)))))))
 
 ;; ->html
-(defmethod ->html ((node bullet-list-item-node))
+(defmethod ->html ((node ordered-list-item-node))
   (if (and (parent-is-tight node)
            (typep (first (children node)) 'paragraph-node))
       (format nil "<li>~{~A~^~%~}</li>~%" (children (first (children node))))

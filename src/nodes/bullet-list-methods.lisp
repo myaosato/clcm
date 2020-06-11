@@ -17,7 +17,7 @@
           ((char= (char content (1+ indent)) #\Space)
            (list (+ indent 2) (subseq content (+ indent 2))))
           ((char= (char content (1+ indent)) #\Tab)
-           (list (+ indent 2) 
+           (list (+ indent 2)
                  (format nil "~A~A"
                              (repeat-char #\Space (- 3 (mod (1+ indent) 4)))
                              (subseq content (+ indent 2))))))))
@@ -28,14 +28,12 @@
   (let ((marker-pos (is-bullet-list-line line offset)))
     (unless (or (and marker-pos (char= (char line marker-pos) (marker node)))
                 (and (is-open (last-child node))))
-      (if (find-if (lambda (item) (>= (length (children item)) 2)) (children node))
-          (setf (is-tight node) nil))
       (close-node node))))
 
 ;; add
 (defun _add!? (node line offset)
   (destructuring-bind (marker-offset content) (trim-marker line offset)
-    (attach-bullet-list-item! node content marker-offset)))
+    (attach-bullet-list-item! node content (+ offset marker-offset))))
 
 (defmethod add!? ((node bullet-list-node) line offset)
   (let ((last-child (last-child node)))
@@ -45,12 +43,15 @@
            (setf (is-tight node) nil))
           ((eq (is-tight node) 'foo)
            (setf (is-tight node) t)))
-    (if (not (and last-child (is-open last-child)))
-        (_add!? node line offset)
-        (add!? last-child line offset))))
+    (if (and last-child (is-open last-child))
+        (add!? last-child line offset)
+        (_add!? node line offset))))
+
 
 ;; ->html
 (defmethod ->html ((node bullet-list-node))
+  (if (find-if (lambda (item) (>= (length (children item)) 2)) (children node))
+      (setf (is-tight node) nil))
   (unless (is-tight node)
     (loop :for child :in (children node)
           :do (setf (parent-is-tight child) nil)))

@@ -10,5 +10,4 @@
 (in-package :clcm/nodes/list)
 
 (defclass list-node (node)
-  ((marker :accessor marker :initarg :marker)
-   (is-tight :accessor is-tight :initarg :is-tight :initform t)))
+  ((is-tight :accessor is-tight :initarg :is-tight :initform t)))

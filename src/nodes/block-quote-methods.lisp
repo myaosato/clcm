@@ -11,7 +11,8 @@
         :clcm/nodes/html-block
         :clcm/nodes/paragraph
         :clcm/nodes/block-quote
-        :clcm/nodes/bullet-list)
+        :clcm/nodes/bullet-list
+        :clcm/nodes/ordered-list)
   (:import-from :cl-ppcre
                 :scan-to-strings)
   (:export :trim-block-quote-marker))
@@ -26,7 +27,8 @@
       (is-tilde-fenced-code-block-line line offset)
       (is-html-block-line '(1 2 3 4 5 6) line offset)
       (is-block-quote-line line offset)
-      (is-bullet-list-line line offset)))
+      (is-bullet-list-line line offset)
+      (is-ordered-list-line line offset)))
 
 (defun trim-block-quote-marker (line offset)
   ;; return (TRIMED-CONTENTS OFFSET)
@@ -83,6 +85,7 @@
         (attach-html-block!? node trimed-line child-offset)
         (attach-block-quote!? node trimed-line child-offset)
         (attach-bullet-list!? node trimed-line child-offset)
+        (attach-ordered-list!? node trimed-line child-offset)
         (attach-paragraph! node trimed-line :can-change-heading nil))))
 
 (defmethod add!? ((node block-quote-node) line offset)

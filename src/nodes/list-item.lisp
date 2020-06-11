@@ -21,7 +21,7 @@
            (child (make-instance class :offset list-item-offset)))
       (add-child node child)
       (unless (is-blank-line content)
-       (add!? child
-              (concatenate 'string (repeat-char #\Space (- list-item-offset offset)) content)
-              offset))
+        (add!? child
+               content
+               offset))
       child)))
