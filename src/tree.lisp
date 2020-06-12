@@ -4,7 +4,7 @@
         :clcm/line
         :clcm/node
         :clcm/nodes/document)
-  (:shadow :close)
+  (:shadow :reverse-children)
   (:export :make-tree
            :tree->html))
 (in-package :clcm/tree)
@@ -13,7 +13,7 @@
 (defun make-tree (cm-string)
   (-> cm-string
       (cm->block-tree)
-      (interprets-inlines)))
+      (reverse-children)))
 
 (defun tree->html (tree)
   (->html (root tree)))
@@ -38,6 +38,6 @@
   tree)
 
 ;; parse inlines
-(defun interprets-inlines (tree)
-  (parses-inlines (root tree))
+(defun reverse-children (tree)
+  (clcm/node:reverse-children (root tree))
   tree)

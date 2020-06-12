@@ -6,7 +6,7 @@
            :children
            :close!?
            :add!?
-           :parses-inlines
+           :reverse-children
            :->html
            :close-node
            :last-child
@@ -19,14 +19,14 @@
 
 (defgeneric close!? (node line offset))
 (defgeneric add!? (node line offset))
-(defgeneric parses-inlines (node))
+(defgeneric reverse-children (node))
 (defgeneric ->html (node))
 
-(defmethod parses-inlines ((node node))
+(defmethod reverse-children ((node node))
   (setf (children node) (reverse (children node)))
   (loop :for child :in (children node)
         :if (typep child 'node)
-        :do (parses-inlines child))
+        :do (reverse-children child))
   node)
 
 (defun close-node (node)
