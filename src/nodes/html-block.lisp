@@ -84,7 +84,8 @@
   `(:sequence
     :start-anchor
     (:alternation ,*open-tag* ,*closing-tag*)
-    (:greedy-repetition 0 nil :whitespace-char-class)))
+    (:greedy-repetition 0 nil :whitespace-char-class)
+    :end-anchor))
 
 (defun is-html-block-type-7-start-line (line offset)
   (multiple-value-bind (indent content) (get-indented-depth-and-line line offset)
