@@ -47,7 +47,7 @@
     (format nil
             "<pre><code~A>~A</code></pre>~%"
             (if (string/= (info-string node) "")
-                (format nil " class=\"language-~A\"" (info-string node))
+                (format nil " class=\"language-~A\"" (inlines->html (list (info-string node))))
                 "")
             content)))
 
