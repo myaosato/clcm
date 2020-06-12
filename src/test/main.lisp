@@ -7,7 +7,8 @@
   (:import-from :cl-json :decode-json-from-source)
   (:export :test
            :test-for
-           :test-range))
+           :test-range
+           :test-section))
 (in-package :clcm/test/main)
 
 (defvar *spec-json-file* (merge-pathnames "spec.json"
