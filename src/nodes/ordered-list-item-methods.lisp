@@ -9,6 +9,7 @@
         :clcm/nodes/fenced-code-block
         :clcm/nodes/html-block
         :clcm/nodes/paragraph
+        :clcm/nodes/blank-line
         :clcm/nodes/block-quote
         :clcm/nodes/bullet-list
         :clcm/nodes/ordered-list
@@ -34,11 +35,11 @@
 (defmethod close!? ((node ordered-list-item-node) line offset)
   (multiple-value-bind (indent content) (get-indented-depth-and-line line offset :limit (offset node))
     (cond ((is-blank-line line)
-           (if (last-child node)
+           (if (and (last-child node) (is-open (last-child node)))
                (close!? (last-child node) line offset)))
           ((< indent (- (offset node) offset))
            (close-node node))
-          ((last-child node)
+          ((and (last-child node) (is-open (last-child node)))
            (close!? (last-child node) (subseq content (- (offset node) offset)) (offset node))))))
 
 ;; add
@@ -55,7 +56,8 @@
       (cond ((and last-child (is-open last-child))
              (add!? last-child trimed-line child-offset))
             (t
-             (or (skip-blank-line? trimed-line)
+             (or (when (is-blank-line trimed-line)
+                   (push (make-instance 'blank-line-node :is-open nil) (children node)))
                  (attach-thematic-break!? node trimed-line child-offset)
                  (attach-atx-heading!? node trimed-line child-offset)
                  (attach-indented-code-block!? node trimed-line child-offset)
@@ -68,7 +70,14 @@
 
 ;; ->html
 (defmethod ->html ((node ordered-list-item-node))
-  (if (and (parent-is-tight node)
-           (typep (first (children node)) 'paragraph-node))
-      (format nil "<li>~{~A~^~%~}</li>~%" (children (first (children node))))
-      (format nil "<li>~%~{~A~}</li>~%" (mapcar #'->html (children node)))))
+    (let ((children (remove-if (lambda (child)
+                               (typep child 'blank-line-node))
+                             (children node))))
+    (cond ((parent-is-tight node)
+           (loop :for child :in children
+                 :if (typep child 'paragraph-node)
+                 :do (setf (not-render-tag child) t))
+           (if (or (= (length children) 0) (typep (first children) 'paragraph-node))
+               (format nil "<li>~{~A~^~%~}</li>~%" (mapcar #'->html children))
+               (format nil "<li>~%~{~A~^~%~}</li>~%" (mapcar #'->html children))))
+          (t (format nil "<li>~%~{~A~}</li>~%" (mapcar #'->html children))))))

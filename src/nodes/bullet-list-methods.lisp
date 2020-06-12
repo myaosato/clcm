@@ -3,6 +3,7 @@
         :clcm/utils
         :clcm/line
         :clcm/node
+        :clcm/nodes/blank-line
         :clcm/nodes/bullet-list
         :clcm/nodes/bullet-list-item)
   (:import-from :cl-ppcre
@@ -50,10 +51,17 @@
 
 ;; ->html
 (defmethod ->html ((node bullet-list-node))
-  (if (find-if (lambda (item) (>= (length (children item)) 2)) (children node))
-      (setf (is-tight node) nil))
-  (unless (is-tight node)
-    (loop :for child :in (children node)
-          :do (setf (parent-is-tight child) nil)))
-  (format nil "<ul>~%~{~A~}</ul>~%"
-          (mapcar #'->html (children node))))
+  (let ((items (children node)))
+    (if (find-if (lambda (item)
+                   (let ((children (children item)))
+                     (and (>= (length children) 3)
+                          (find-if (lambda (elt) (typep elt 'blank-line-node))
+                                   children
+                                   :start 1 :end (1- (length children))))))
+                 items)
+        (setf (is-tight node) nil))
+    (unless (is-tight node)
+      (loop :for child :in items
+            :do (setf (parent-is-tight child) nil)))
+    (format nil "<ul>~%~{~A~}</ul>~%"
+            (mapcar #'->html items))))

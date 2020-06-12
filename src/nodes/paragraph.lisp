@@ -11,11 +11,13 @@
         :clcm/nodes/bullet-list
         :clcm/nodes/ordered-list)
   (:export :paragraph-node
+           :not-render-tag
            :attach-paragraph!))
 (in-package :clcm/nodes/paragraph)
 
 (defclass paragraph-node (node)
-  ((can-change-heading :accessor can-change-heading :initarg :can-change-heading :initform t)))
+  ((can-change-heading :accessor can-change-heading :initarg :can-change-heading :initform t)
+   (not-render-tag :accessor not-render-tag :initarg :not-render-tag :initform nil)))
 
 ;; close
 (defun close-paragraph-line (line offset)
@@ -51,7 +53,9 @@
 ;; ->html
 (defmethod ->html ((node paragraph-node))
   (let ((content (format nil "~{~A~^~%~}" (children node))))
-    (format nil "<p>~A</p>~%" content)))
+    (if (not-render-tag node)
+        (format nil "~A" content)
+        (format nil "<p>~A</p>~%" content))))
 
 (defun attach-paragraph! (node line &key (can-change-heading t))
   (let ((child (make-instance 'paragraph-node :can-change-heading can-change-heading)))
