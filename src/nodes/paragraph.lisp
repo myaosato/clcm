@@ -1,6 +1,7 @@
 (defpackage :clcm/nodes/paragraph
   (:use :cl
         :clcm/line
+        :clcm/inlines
         :clcm/node
         :clcm/nodes/thematic-break
         :clcm/nodes/atx-heading
@@ -52,7 +53,7 @@
 
 ;; ->html
 (defmethod ->html ((node paragraph-node))
-  (let ((content (format nil "~{~A~^~%~}" (children node))))
+  (let ((content (inlines->html (children node))))
     (if (not-render-tag node)
         (format nil "~A" content)
         (format nil "<p>~A</p>~%" content))))

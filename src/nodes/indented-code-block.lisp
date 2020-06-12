@@ -2,6 +2,7 @@
   (:use :cl
         :clcm/utils
         :clcm/line
+        :clcm/inlines
         :clcm/node)
   (:import-from :cl-ppcre
                 :scan
@@ -32,11 +33,14 @@
   (format nil "<pre><code>~A</code></pre>~%" content)))
 
 (defun make-content (node)
-  (format nil "~{~A~%~}" (-> (children node)
-                             (reverse)
-                             (trim-left-blank-line)
-                             (reverse)
-                             (trim-left-blank-line))))
+  (inlines->html (trim-blank-line (children node)) :last-break t))
+
+(defun trim-blank-line (list)
+  (-> list
+      (reverse)
+      (trim-left-blank-line)
+      (reverse)
+      (trim-left-blank-line)))
 
 (defun trim-left-blank-line (list)
   (cond ((null list)

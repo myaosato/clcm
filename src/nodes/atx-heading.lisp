@@ -2,6 +2,7 @@
   (:use :cl
         :clcm/line
         :clcm/utils
+        :clcm/inlines
         :clcm/node)
   (:import-from :cl-ppcre
                 :scan
@@ -49,7 +50,7 @@
         line)))
 
 (defmethod ->html ((node atx-heading-node))
-  (let ((content (first (children node))))
+  (let ((content (inlines->html (children node))))
     (format nil
             "<h~A>~A</h~A>~%"
             (heading-level node)
