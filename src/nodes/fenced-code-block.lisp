@@ -3,6 +3,7 @@
         :clcm/utils
         :clcm/line
         :clcm/inlines
+        :clcm/inlines-ltgtamp
         :clcm/node)
   (:import-from :cl-ppcre
                 :scan
@@ -43,7 +44,7 @@
 
 ;; ->html
 (defmethod ->html ((node fenced-code-block-node))
-  (let ((content (inlines->html (children node) :last-break t)))
+  (let ((content (<>&->ref (children node) :last-break t)))
     (format nil
             "<pre><code~A>~A</code></pre>~%"
             (if (string/= (info-string node) "")

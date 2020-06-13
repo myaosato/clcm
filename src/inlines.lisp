@@ -1,5 +1,6 @@
 (defpackage :clcm/inlines
   (:use :cl)
+  (:import-from :cl-ppcre)
   (:export :inlines->html))
 (in-package :clcm/inlines)
 
@@ -8,6 +9,13 @@
   (if (null strings) (return-from inlines->html ""))
   (let ((chars (format nil "~{~A~^~%~}~A" strings (if last-break #\Newline ""))))
     (chars->html chars)))
+
+;; vars
+(defvar *ascii-punctuations*
+  '(#\! #\" #\# #\$ #\% #\& #\' #\( #\) #\* #\+ #\, #\- #\. #\/
+    #\: #\; #\< #\= #\> #\? #\@
+    #\[ #\\ #\] #\^ #\_ #\`
+    #\{ #\| #\} #\~))
 
 ;; parser
 (defstruct (inlines-parser (:conc-name ip-))
@@ -34,6 +42,12 @@
   (when (< pos (length input))
     (char input pos))))
 
+(defun scan (parser regex)
+  (cl-ppcre:scan regex (ip-input parser) :start (ip-position parser)))
+
+(defun pos+ (parser &optional (n 1))
+  (incf (ip-position parser) n))
+
 (defun push-chars (parser &rest chars)
   (loop :for c :in chars
         :do (push c (ip-stack parser))))
@@ -46,15 +60,28 @@
 (defun run (parser)
   (cond ((null (peek-c parser)) ;; END
          (output parser))
-        ((and (is-backslash (peek-c parser)) (is-ascii-punctuation-character (peek-c parser 1)))
-         (read-c parser)
+        ((scan parser `(:sequence :start-anchor #\\ (:char-class ,@*ascii-punctuations*)))
+         (pos+ parser)
          (push-chars parser (read-c parser))
          (run parser))
-        ((and (is-backslash (peek-c parser)) (is-eol (peek-c parser 1)))
-         (read-c parser)
-         (push-string parser "<br />")
-         (push-chars parser (read-c parser))
+        ((scan parser '(:sequence :start-anchor #\\ #\Newline))
+         (pos+ parser 2)
+         (push-string parser (format nil "<br />~%"))
          (run parser))
+        ;;
+        ((scan parser "^<")
+         (pos+ parser)
+         (push-string parser "&lt;")
+         (run parser))
+        ((scan parser "^>")
+         (pos+ parser)
+         (push-string parser "&gt;")
+         (run parser))
+        ((scan parser "^&")
+         (pos+ parser)
+         (push-string parser "&amp;")
+         (run parser))
+        ;; 
         (t
          (push-chars parser (read-c parser))
          (run parser))))
@@ -67,16 +94,3 @@
 ;;
 (defun is-backslash (char)
   (and char (char= char #\\)))
-
-(defun is-ascii-punctuation-character (char)
-  (and char
-       (let ((code (char-code char)))
-         (or (<= #x21 code #x2f)
-             (<= #x3a code #x40)
-             (<= #x5b code #x60)
-             (<= #x7b code #x7e)))))
-
-(defun is-eol (char)
-  (and char (char= char #\Newline)))
-
-

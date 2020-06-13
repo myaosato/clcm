@@ -2,7 +2,7 @@
   (:use :cl
         :clcm/utils
         :clcm/line
-        :clcm/inlines
+        :clcm/inlines-ltgtamp
         :clcm/node)
   (:import-from :cl-ppcre
                 :scan
@@ -33,7 +33,7 @@
   (format nil "<pre><code>~A</code></pre>~%" content)))
 
 (defun make-content (node)
-  (inlines->html (trim-blank-line (children node)) :last-break t))
+  (<>&->ref (trim-blank-line (children node)) :last-break t))
 
 (defun trim-blank-line (list)
   (-> list
