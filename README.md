@@ -25,14 +25,14 @@ Common Lisp CommonMark
 
 ### Inlines
 
-- [ ] Backslash escapes
+- [x] Backslash escapes
 - [ ] Entity and numeric character references
 - [ ] Code spans
 - [ ] Emphasis and strong emphasis
 - [ ] Links
 - [ ] Images
 - [ ] Autolinks
-- [ ] Raw HTML
+- [x] Raw HTML
 - [ ] Hard line breaks
 - [ ] Soft line breaks
-- [ ] Textual content
+- [x] Textual content

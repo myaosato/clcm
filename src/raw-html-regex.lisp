@@ -1,7 +1,8 @@
 (defpackage :clcm/raw-html-regex
   (:use :cl)
   (:export :*open-tag*
-           :*closing-tag*))
+           :*closing-tag*
+           :*html-tag*))
 (in-package :clcm/raw-html-regex)
 
 ;; ref. https://spec.commonmark.org/0.29/#raw-html
@@ -56,3 +57,41 @@
     ,*tag-name*
     (:greedy-repetition 0 nil :whitespace-char-class)
     ">"))
+
+(defvar *html-comment*
+  `(:sequence
+    "<!--"
+    (:alternation
+     (:regex "")
+     (:sequence 
+      (:alternation
+       (:regex "[^->]")
+       (:regex "-[^->]"))
+      (:non-greedy-repetition 0 nil (:regex "[^-]*?|-[^-]"))))
+    "-->"))
+
+(defvar *processiong-instruction*
+  `(:sequence
+    "<?"
+    (:non-greedy-repetition 0 nil :everything)
+    "?>"))
+
+(defvar *declaration*
+  '(:regex "<![A-Z]+ [^>]*?>"))
+
+(defvar *cdata-section*
+  `(:sequence
+    "<![CDATA["
+    (:non-greedy-repetition 0 nil :everything)
+    "]]>"))
+
+(defvar *html-tag*
+  `(:sequence
+    :start-anchor
+    (:alternation
+     ,*open-tag*
+     ,*closing-tag*
+     ,*html-comment*
+     ,*processiong-instruction*
+     ,*declaration*
+     ,*cdata-section*)))

@@ -1,5 +1,6 @@
 (defpackage :clcm/inlines
-  (:use :cl)
+  (:use :cl
+        :clcm/raw-html-regex)
   (:import-from :cl-ppcre)
   (:export :inlines->html))
 (in-package :clcm/inlines)
@@ -45,6 +46,13 @@
 (defun scan (parser regex)
   (cl-ppcre:scan regex (ip-input parser) :start (ip-position parser)))
 
+(defun scan&push (parser regex)
+  (let ((result (cl-ppcre:scan-to-strings regex (ip-input parser) :start (ip-position parser))))
+    (when result
+      (pos+ parser (length result))
+      (push-string parser result)
+      t)))
+
 (defun pos+ (parser &optional (n 1))
   (incf (ip-position parser) n))
 
@@ -67,6 +75,8 @@
         ((scan parser '(:sequence :start-anchor #\\ #\Newline))
          (pos+ parser 2)
          (push-string parser (format nil "<br />~%"))
+         (run parser))
+        ((scan&push parser *html-tag*)
          (run parser))
         ;;
         ((scan parser "^<")
