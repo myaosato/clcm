@@ -39,7 +39,7 @@
               "~%TOTAL:~42T~A~46T/ ~A test cases (~,2F%)~%"
               passed
               total
-              (/ passed total)))))
+              (* (/ passed total) 100)))))
 
 (defun test-for (num)
   (let* ((test-data (decode-json-from-source *spec-json-file*))
