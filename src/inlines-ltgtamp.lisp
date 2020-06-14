@@ -53,8 +53,8 @@
           ((char= c #\&)
            (push-string parser "&amp;"))
           (t
-           (push-chars parser c)
-           (run parser)))))
+           (push-chars parser c)))
+    (run parser)))
   
 (defun output (parser)
   (concatenate 'string (reverse (ip-stack parser))))

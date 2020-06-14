@@ -68,4 +68,6 @@
     (:blank-lines (test-range 197 197))
     (:block-quotes (test-range 198 222))
     (:list-items (test-range 223 270))
-    (:lists (test-range 271 296))))
+    (:lists (test-range 271 296))
+    ;;
+    (:code-spans (test-range 328 349))))

@@ -1,6 +1,7 @@
 (defpackage :clcm/inlines
   (:use :cl
-        :clcm/raw-html-regex)
+        :clcm/raw-html-regex
+        :clcm/inlines-ltgtamp)
   (:import-from :cl-ppcre)
   (:export :inlines->html))
 (in-package :clcm/inlines)
@@ -46,15 +47,18 @@
 (defun scan (parser regex)
   (cl-ppcre:scan regex (ip-input parser) :start (ip-position parser)))
 
+(defun scan-to-strings (parser regex)
+  (cl-ppcre:scan-to-strings regex (ip-input parser) :start (ip-position parser)))
+
 (defun scan&push (parser regex)
-  (let ((result (cl-ppcre:scan-to-strings regex (ip-input parser) :start (ip-position parser))))
+  (let ((result (scan-to-strings parser regex)))
     (when result
       (pos+ parser (length result))
       (push-string parser result)
       t)))
 
 (defun scan&+ (parser regex)
-  (let ((result (cl-ppcre:scan-to-strings regex (ip-input parser) :start (ip-position parser))))
+  (let ((result (scan-to-strings parser regex)))
     (when result
       (pos+ parser (length result))
       t)))
@@ -70,7 +74,33 @@
   (loop :for c :across string
         :do (push c (ip-stack parser))))
 
-;; main function 
+;; special
+
+(defun code-span? (parser)
+  (let ((start-backticks (scan-to-strings parser "^`+")))
+    (when start-backticks
+      (let ((target (format nil "^~A([^`]|[^`](:?.|\\n)*?[^`])~A(?:[^`]|\\n|$)"
+                            start-backticks start-backticks)))
+      (multiple-value-bind (result strs) (scan-to-strings parser target)
+        (cond (result
+               (pos+ parser (+ (* 2 (length start-backticks)) (length (aref strs 0))))
+               (let ((content (aref strs 0)))
+                 (loop :for i :from 0 :to (1- (length content))
+                       :if (char= (aref content i) #\Newline)
+                       :do (setf (aref content i) #\Space))
+                 (if (and (not (cl-ppcre:scan "^ +$" content))
+                          (>= (length content) 3)
+                          (char= (char content 0) #\Space)
+                          (char= (char content (1- (length content))) #\Space))
+                     (setf content (subseq content 1 (1- (length content)))))
+                 (push-string parser (format nil "<code>~A</code>" (<>&->ref (list content))))
+                 t))
+              (t
+               (pos+ parser (length start-backticks))
+               (push-string parser start-backticks)
+               t)))))))
+
+;; main function
 (defun run (parser)
   (cond ((null (peek-c parser)) ;; END
          (output parser))
@@ -81,6 +111,8 @@
         ((scan parser '(:sequence :start-anchor #\\ #\Newline))
          (pos+ parser 2)
          (push-string parser (format nil "<br />~%"))
+         (run parser))
+        ((code-span? parser)
          (run parser))
         ((scan&push parser *html-tag*)
          (run parser))
@@ -105,7 +137,7 @@
          (pos+ parser)
          (push-string parser "&amp;")
          (run parser))
-        ;; 
+        ;;
         (t
          (push-chars parser (read-c parser))
          (run parser))))
@@ -113,7 +145,7 @@
 (defun output (parser)
   (concatenate 'string (reverse (ip-stack parser))))
 
-;; 
+;;
 
 ;;
 (defun is-backslash (char)

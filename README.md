@@ -27,12 +27,12 @@ Common Lisp CommonMark
 
 - [x] Backslash escapes
 - [ ] Entity and numeric character references
-- [ ] Code spans
+- [x] Code spans
 - [ ] Emphasis and strong emphasis
 - [ ] Links
 - [ ] Images
 - [ ] Autolinks
 - [x] Raw HTML
-- [ ] Hard line breaks
-- [ ] Soft line breaks
+- [x] Hard line breaks
+- [x] Soft line breaks
 - [x] Textual content
