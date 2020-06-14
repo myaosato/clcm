@@ -49,7 +49,7 @@
          (setf (heading-level node) 2)
          (close-node node))
         (t
-         (add-child node (string-trim *white-space-characters* line)))))
+         (add-child node (string-left-trim *white-space-characters* line)))))
 
 ;; ->html
 (defmethod ->html ((node paragraph-node))

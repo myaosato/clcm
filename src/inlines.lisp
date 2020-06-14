@@ -53,6 +53,12 @@
       (push-string parser result)
       t)))
 
+(defun scan&+ (parser regex)
+  (let ((result (cl-ppcre:scan-to-strings regex (ip-input parser) :start (ip-position parser))))
+    (when result
+      (pos+ parser (length result))
+      t)))
+
 (defun pos+ (parser &optional (n 1))
   (incf (ip-position parser) n))
 
@@ -77,6 +83,14 @@
          (push-string parser (format nil "<br />~%"))
          (run parser))
         ((scan&push parser *html-tag*)
+         (run parser))
+        ((scan&+ parser '(:sequence :start-anchor (:greedy-repetition 2 nil #\Space) :end-anchor))
+         (run parser))
+        ((scan&+ parser '(:sequence :start-anchor (:greedy-repetition 2 nil #\Space) #\Newline))
+         (push-string parser (format nil "<br />~%"))
+         (run parser))
+        ((scan&+ parser '(:sequence :start-anchor #\Space #\Newline))
+         (push-string parser (format nil "~%"))
          (run parser))
         ;;
         ((scan parser "^<")

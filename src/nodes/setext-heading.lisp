@@ -1,5 +1,7 @@
 (defpackage :clcm/nodes/setext-heading
   (:use :cl
+        :clcm/line
+        :clcm/inlines
         :clcm/node)
   (:import-from :cl-ppcre
                 :scan)
@@ -20,7 +22,9 @@
 
 ;; ->html
 (defmethod ->html ((node setext-heading-node))
-  (let ((content (format nil "~{~A~^~%~}" (children node))))
+  (let ((content (inlines->html (mapcar #'(lambda (line) 
+                                            (string-trim *white-space-characters* line))
+                                        (children node)))))
     (format nil
             "<h~A>~A</h~A>~%"
             (heading-level node)
