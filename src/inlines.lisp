@@ -22,7 +22,7 @@
 ;; parser
 (defstruct (inlines-parser (:conc-name ip-))
   (input "")
-  (stack nil)
+  (stack (make-array 100 :element-type 'character :fill-pointer 0 :adjustable t))
   (position 0))
 
 (defun chars->html (chars)
@@ -68,11 +68,11 @@
 
 (defun push-chars (parser &rest chars)
   (loop :for c :in chars
-        :do (push c (ip-stack parser))))
+        :do (vector-push-extend c (ip-stack parser))))
 
 (defun push-string (parser string)
   (loop :for c :across string
-        :do (push c (ip-stack parser))))
+        :do (vector-push-extend c (ip-stack parser))))
 
 ;; special
 
@@ -104,28 +104,42 @@
 (defun run (parser)
   (cond ((null (peek-c parser)) ;; END
          (output parser))
-        ((scan parser `(:sequence :start-anchor #\\ (:char-class ,@*ascii-punctuations*)))
-         (pos+ parser)
-         (push-chars parser (read-c parser))
-         (run parser))
-        ((scan parser '(:sequence :start-anchor #\\ #\Newline))
-         (pos+ parser 2)
-         (push-string parser (format nil "<br />~%"))
-         (run parser))
+        ((scan\-escape parser))
         ((code-span? parser)
          (run parser))
-        ((scan&push parser *html-tag*)
-         (run parser))
-        ((scan&+ parser '(:sequence :start-anchor (:greedy-repetition 2 nil #\Space) :end-anchor))
+        ((scan-html-tag parser))
+        ((scan-line-break parser))
+        ((scan<>& parser))
+        (t ;; read-char
+         (push-chars parser (read-c parser))
+         (run parser))))
+
+(defun scan-html-tag (parser)
+  (if (scan&push parser *html-tag*)
+      (run parser)))
+
+(defun scan-line-break (parser)
+  (cond ((scan&+ parser '(:sequence :start-anchor (:greedy-repetition 2 nil #\Space) :end-anchor))
          (run parser))
         ((scan&+ parser '(:sequence :start-anchor (:greedy-repetition 2 nil #\Space) #\Newline))
          (push-string parser (format nil "<br />~%"))
          (run parser))
         ((scan&+ parser '(:sequence :start-anchor #\Space #\Newline))
          (push-string parser (format nil "~%"))
+         (run parser))))
+
+(defun scan\-escape (parser)
+  (cond ((scan parser `(:sequence :start-anchor #\\ (:char-class ,@*ascii-punctuations*)))
+         (pos+ parser)
+         (push-chars parser (read-c parser))
          (run parser))
-        ;;
-        ((scan parser "^<")
+        ((scan parser '(:sequence :start-anchor #\\ #\Newline))
+         (pos+ parser 2)
+         (push-string parser (format nil "<br />~%"))
+         (run parser))))
+
+(defun scan<>& (parser)
+  (cond ((scan parser "^<")
          (pos+ parser)
          (push-string parser "&lt;")
          (run parser))
@@ -136,14 +150,10 @@
         ((scan parser "^&")
          (pos+ parser)
          (push-string parser "&amp;")
-         (run parser))
-        ;;
-        (t
-         (push-chars parser (read-c parser))
          (run parser))))
 
 (defun output (parser)
-  (concatenate 'string (reverse (ip-stack parser))))
+  (format nil "~A" (ip-stack parser)))
 
 ;;
 
