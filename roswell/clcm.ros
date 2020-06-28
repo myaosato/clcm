@@ -1,0 +1,20 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp(ql:quickload '(:clcm) :silent t)
+  )
+
+(defpackage :ros.script.clcm.3802314072
+  (:use :cl))
+(in-package :ros.script.clcm.3802314072)
+
+(defun main (&rest argv)
+  (let ((result (ignore-errors (clcm:cm->html (uiop:read-file-string (first argv))))))
+    (if result
+        (princ result)
+        (uiop:quit 1))))
+;;; vim: set ft=lisp lisp:
