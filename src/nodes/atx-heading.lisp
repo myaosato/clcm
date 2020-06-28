@@ -2,7 +2,7 @@
   (:use :cl
         :clcm/line
         :clcm/utils
-        :clcm/inlines
+        :clcm/inlines/inlines
         :clcm/node)
   (:import-from :cl-ppcre
                 :scan

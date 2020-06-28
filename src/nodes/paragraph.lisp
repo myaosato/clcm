@@ -1,7 +1,7 @@
 (defpackage :clcm/nodes/paragraph
   (:use :cl
         :clcm/line
-        :clcm/inlines
+        :clcm/inlines/inlines
         :clcm/node
         :clcm/nodes/thematic-break
         :clcm/nodes/atx-heading

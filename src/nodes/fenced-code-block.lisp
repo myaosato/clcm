@@ -2,8 +2,8 @@
   (:use :cl
         :clcm/utils
         :clcm/line
-        :clcm/inlines
-        :clcm/inlines-ltgtamp
+        :clcm/inlines/inlines
+        :clcm/inlines/inlines-ltgtamp
         :clcm/node)
   (:import-from :cl-ppcre
                 :scan

@@ -1,7 +1,7 @@
-(defpackage :clcm/inlines-ltgtamp
+(defpackage :clcm/inlines/inlines-ltgtamp
   (:use :cl)
   (:export :<>&->ref))
-(in-package :clcm/inlines-ltgtamp)
+(in-package :clcm/inlines/inlines-ltgtamp)
 
 ;; api
 (defun <>&->ref (strings &key last-break)

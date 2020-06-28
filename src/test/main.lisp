@@ -15,6 +15,9 @@
                                           (system-source-directory "clcm")))
 
 (defun test ()
+  (%test #'cm->html))
+
+(defun %test (fn)
   (let* ((test-data (decode-json-from-source *spec-json-file*))
          (sections nil)
          (number-of-case (length test-data)))
@@ -26,7 +29,7 @@
           :end
           ; test     
           :if (string= (cdr (assoc :html test-case))
-                       (cm->html (cdr (assoc :markdown test-case))))
+                       (funcall fn (cdr (assoc :markdown test-case))))
           :do (incf (second (car sections)))
           :end
           :do (incf (third (car sections))))
@@ -40,6 +43,7 @@
               passed
               total
               (* (/ passed total) 100)))))
+
 
 (defun test-for (num)
   (let* ((test-data (decode-json-from-source *spec-json-file*))
