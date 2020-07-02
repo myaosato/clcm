@@ -28,7 +28,7 @@ Common Lisp CommonMark
 - [x] Backslash escapes
 - [ ] Entity and numeric character references
 - [x] Code spans
-- [ ] Emphasis and strong emphasis
+- [ ] Emphasis and strong emphasis (now partially supported (\* only
 - [ ] Links
 - [ ] Images
 - [ ] Autolinks

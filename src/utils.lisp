@@ -6,6 +6,7 @@
            :trim-left-space-max-n
            :repeat-char
            :replace&adjust
+           :or/mv
            :*string-tab*))
 (in-package :clcm/utils)
 
@@ -52,3 +53,14 @@
      (replace sequence1 source :start1 start1)
      (replace sequence1 rest :start1 (+ start1 (length source)))
      sequence1))
+
+;; multiple-value-or
+(defmacro or/mv (form &rest forms)  
+  (let* ((forms (cons form forms))
+         (name (gensym))
+         (body (loop :for form :in forms
+                     :collect (let ((list (gensym)))
+                                `(let ((,list (multiple-value-list ,form)))
+                                   (if (car ,list)
+                                       (return-from ,name (values-list ,list))))))))
+    `(block ,name ,@body)))

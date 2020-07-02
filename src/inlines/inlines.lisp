@@ -14,11 +14,37 @@
     (chars->html chars)))
 
 ;; vars
-(defvar *ascii-punctuations*
-  '(#\! #\" #\# #\$ #\% #\& #\' #\( #\) #\* #\+ #\, #\- #\. #\/
+(defvar *ascii-punctuations-without-*_*
+  '(#\! #\" #\# #\$ #\% #\& #\' #\( #\) #\+ #\, #\- #\. #\/
     #\: #\; #\< #\= #\> #\? #\@
-    #\[ #\\ #\] #\^ #\_ #\`
+    #\[ #\\ #\] #\^ #\`
     #\{ #\| #\} #\~))
+
+(defvar *unicode-whitespaces*
+  (list (code-char #x9) (code-char #xD) (code-char #xA) (code-char #xC)
+        (code-char #x20) (code-char #xA0)  (code-char #x1680) (code-char #x2000)
+        (code-char #x2001) (code-char #x2002) (code-char #x2003) (code-char #x2004)
+        (code-char #x2005) (code-char #x2006) (code-char #x2007) (code-char #x2008)
+        (code-char #x2009) (code-char #x200A) (code-char #x202F) (code-char #x205F)
+        (code-char #x3000)))
+
+(defvar *ascii-punctuations*
+  ;; TODO
+  (append *ascii-punctuations-without-*_* (list #\* #\_)))
+
+(defvar *punctuations*
+  ;; TODO
+  (append *ascii-punctuations-without-*_* (list #\* #\_)))
+
+(defvar *punctuations-without-**
+  ;; TODO
+  (append *ascii-punctuations-without-*_* (list #\_)))
+
+(defvar *punctuations-without-_*
+  ;; TODO
+  (append *ascii-punctuations-without-*_* (list #\*)))
+
+
 
 ;;;; parser
 (defstruct (inlines-parser (:conc-name ip-))
@@ -49,8 +75,8 @@
 (defun scan (parser regex &key (offset 0))
   (cl-ppcre:scan regex (ip-input parser) :start (+ (ip-position parser) offset)))
 
-(defun scan-to-strings (parser regex)
-  (cl-ppcre:scan-to-strings regex (ip-input parser) :start (ip-position parser)))
+(defun scan-to-strings (parser regex &key (offset 0))
+  (cl-ppcre:scan-to-strings regex (ip-input parser) :start (+ (ip-position parser) offset)))
 
 (defun scan&push (parser regex)
   (let ((result (scan-to-strings parser regex)))
@@ -79,7 +105,7 @@
 (defun replace-string (parser string start end)
   (replace&adjust (ip-queue parser) string :start1 start :end1 end))
 
-;; op stack TODO 
+;; op stack TODO
 (defstruct (inline-op (:conc-name iop-))
   (type "")
   (start 0)
@@ -112,15 +138,111 @@
         ((scan-code-span parser))
         ((scan-html-tag parser))
         ((scan-line-break parser))
+        ((scan-*_ parser))
         ((scan<>& parser))
         (t ;; read-char
          (push-chars parser (read-c parser))
          (run parser))))
 
+;;
+(defun scan-*_ (parser)
+  (if (not (scan parser "^\\*")) (return-from scan-*_ nil))
+  (when (or (close-* parser)
+            (open-* parser))
+    (run parser)))
+
+(defun *-can-open (parser)
+  ;; TODO
+  (or/mv (scan-to-strings parser
+                          `(:sequence :modeless-start-anchor
+                            (:regex "(\\*+)")
+                            (:inverted-char-class  ,@`,(append *unicode-whitespaces* *punctuations*))))
+         (if (/= (ip-position parser) 0)
+             (scan-to-strings parser
+                              `(:sequence :modeless-start-anchor
+                                (:char-class
+                                 ,@`,(append *unicode-whitespaces* *punctuations-without-**))
+                                (:regex "(\\*+)")
+                                (:char-class ,@*punctuations-without-**))
+                              :offset -1)
+             (scan-to-strings parser
+                              `(:sequence :modeless-start-anchor
+                                (:regex "(\\*+)")
+                                (:char-class ,@*punctuations-without-**))))))
+
+(defun open-* (parser)
+  (multiple-value-bind (result s) (*-can-open parser)
+    (when result
+      (let* ((d (aref s 0)) ; d is delimiter run : ex. **
+             (start (fill-pointer (ip-queue parser)))
+             (op (make-inline-op  :type "*" :start start :end (+ start (length d)) :num (length d))))
+        (push-string parser d)
+        (incf (ip-position parser) (length d))
+        (push-op parser op)
+        op))))
+
+(defun *-can-close (parser)
+  ;; TODO
+  (if (= (ip-position parser) 0) (return-from *-can-close nil))
+  (or/mv (scan-to-strings parser
+                          `(:sequence :modeless-start-anchor
+                            (:inverted-char-class ,@`,(append *unicode-whitespaces* *punctuations*))
+                            (:regex "(\\*+)"))
+                          :offset -1)
+         (scan-to-strings parser
+                          `(:sequence :modeless-start-anchor
+                            (:char-class ,@*punctuations*)
+                            (:regex "(\\*+)")
+                            (:alternation
+                             :modeless-end-anchor-no-newline
+                             (:char-class
+                              ,@`,(append *unicode-whitespaces* *punctuations-without-**))))
+                          :offset -1)))
+
+(defun close-* (parser)
+  (multiple-value-bind (result s) (*-can-close parser)
+    (when result
+      (let* ((d (aref s 0)) ; d is delimiter run : ex. **
+             (op (pop-op parser "*")))
+        (cond ((null op) nil)
+              ; NOTE incf do not return nil
+              ((= (iop-num op) (length d))
+               (_*->em-strong parser (length d) (iop-start op))
+               (incf (ip-position parser) (length d)))
+              ((> (iop-num op) (length d))
+               (let ((remained (- (iop-num op) (length d))))
+                 (_*->em-strong parser (length d) (+ (iop-start op) remained))
+                 (setf (iop-num op) remained)
+                 (setf (iop-end op) (+ (iop-start op) remained))
+                 (push-op parser op)
+                 (incf (ip-position parser) (length d))))
+              ((< (iop-num op) (length d))
+               (let ((remained (- (length d) (iop-num op))))
+                 (_*->em-strong parser (iop-num op) (iop-start op))
+                 (when (*-can-open parser)
+                   (setf (iop-num op) remained)
+                   (setf (iop-start op) (fill-pointer (ip-queue parser)))
+                   (setf (iop-end op) (+ (iop-start op) remained))
+                   (push-op parser op))
+                 (push-string parser (repeat-char #\* remained))
+                 (incf (ip-position parser) (length d)))))))))
+
+(defun _*->em-strong (parser len start) ; consume *** => len = 3
+  (multiple-value-bind (s-num e-num) (floor len 2)
+    (loop :for i :from 0 :to (1- s-num)
+          :do (replace-string parser "<strong>" (+ start (* 2 i)) (+ start (* 2 i) 2)))
+    (when (= 1 e-num)
+      (replace-string parser "<em>" (+ start (* s-num 2)) (+ start len))
+      (push-string parser "</em>"))
+    (loop :for i :from 0 :to (1- s-num)
+          :do (push-string parser "</strong>"))))
+
+;;
 (defun scan-html-tag (parser)
   (if (scan&push parser *html-tag*)
       (run parser)))
 
+;;
 (defun scan-line-break (parser)
   (cond ((scan&+ parser '(:sequence :start-anchor (:greedy-repetition 2 nil #\Space) :end-anchor))
          (run parser))
@@ -131,6 +253,7 @@
          (push-string parser (format nil "~%"))
          (run parser))))
 
+;;
 (defun scan\-escape (parser)
   (cond ((scan parser `(:sequence :start-anchor #\\ (:char-class ,@*ascii-punctuations*)))
          (pos+ parser)
@@ -141,6 +264,7 @@
          (push-string parser (format nil "<br />~%"))
          (run parser))))
 
+;;
 (defun scan-code-span (parser)
   (let ((start-backticks (scan-to-strings parser "^`+")))
     (when start-backticks
@@ -165,6 +289,7 @@
                (push-string parser start-backticks)
                (run parser))))))))
 
+;;
 (defun scan<>& (parser)
   (cond ((scan parser "^<")
          (pos+ parser)
