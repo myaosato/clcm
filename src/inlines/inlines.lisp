@@ -219,21 +219,17 @@
               ((< (iop-num op) (length d))
                (let ((remained (- (length d) (iop-num op))))
                  (_*->em-strong parser (iop-num op) (iop-start op))
-                 (when (*-can-open parser)
-                   (setf (iop-num op) remained)
-                   (setf (iop-start op) (fill-pointer (ip-queue parser)))
-                   (setf (iop-end op) (+ (iop-start op) remained))
-                   (push-op parser op))
-                 (push-string parser (repeat-char #\* remained))
-                 (incf (ip-position parser) (length d)))))))))
+                 (incf (ip-position parser) (- (length d) remained)))))))))
 
 (defun _*->em-strong (parser len start) ; consume *** => len = 3
   (multiple-value-bind (s-num e-num) (floor len 2)
-    (loop :for i :from 0 :to (1- s-num)
-          :do (replace-string parser "<strong>" (+ start (* 2 i)) (+ start (* 2 i) 2)))
     (when (= 1 e-num)
-      (replace-string parser "<em>" (+ start (* s-num 2)) (+ start len))
+      (replace-string parser "<em>" start (+ start 1))
       (push-string parser "</em>"))
+    (loop :for i :from 0 :to (1- s-num)
+          :do (replace-string parser "<strong>"
+                              (+ start (* e-num 4) (* 2 i))
+                              (+ start (* e-num 4) (* 2 i) 2)))
     (loop :for i :from 0 :to (1- s-num)
           :do (push-string parser "</strong>"))))
 
