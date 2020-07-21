@@ -35,7 +35,13 @@
           :do (incf (third (car sections))))
     ;; TODO inform more detail
     (loop :for result :in (reverse sections)
-          :do (format t "~{~A:~42T~A~46T/ ~A~%~}" result))
+          :for name := (first result)
+          :for pass := (second result)
+          :for total := (third result)
+          :for ok/10 := (floor (* 10 (/ pass total)))
+          :for ok-bar := (make-string ok/10 :initial-element #\*)
+          :for ng-bar := (make-string (- 10 ok/10) :initial-element #\-)
+          :do (format t "~A:~42T~A~46T/ ~A~52T ~A~A~%" name pass total ok-bar ng-bar))
     (let ((passed (reduce (lambda (acc elt) (+ acc (cadr elt))) sections :initial-value 0))
           (total number-of-case))
       (format t 
