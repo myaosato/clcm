@@ -17,39 +17,41 @@
 (defun test ()
   (%test #'cm->html))
 
+;; https://gist.github.com/nfunato/01b5ec7bb7b60be18a0920b86783fa3a
 (defun %test (fn)
-  (let* ((test-data (decode-json-from-source *spec-json-file*))
-         (sections nil)
-         (number-of-case (length test-data)))
-    (loop :for test-case :in test-data
-          :for ind :from 0 :to (1- number-of-case)
-          ; separate for each sections
-          :unless (equal (caar sections) (cdr (assoc :section test-case)))
-          :do (setf sections (cons (list (cdr (assoc :section test-case)) 0 0) sections))
-          :end
-          ; test     
-          :if (string= (cdr (assoc :html test-case))
-                       (funcall fn (cdr (assoc :markdown test-case))))
-          :do (incf (second (car sections)))
-          :end
-          :do (incf (third (car sections))))
-    ;; TODO inform more detail
-    (loop :for result :in (reverse sections)
-          :for name := (first result)
-          :for pass := (second result)
-          :for total := (third result)
-          :for ok/10 := (floor (* 10 (/ pass total)))
-          :for ok-bar := (make-string ok/10 :initial-element #\*)
-          :for ng-bar := (make-string (- 10 ok/10) :initial-element #\-)
-          :do (format t "~A:~42T~A~46T/ ~A~52T ~A~A~%" name pass total ok-bar ng-bar))
-    (let ((passed (reduce (lambda (acc elt) (+ acc (cadr elt))) sections :initial-value 0))
-          (total number-of-case))
-      (format t 
-              "~%TOTAL:~42T~A~46T/ ~A test cases (~,2F%)~%"
-              passed
-              total
-              (* (/ passed total) 100)))))
-
+  (let ((test-cases (decode-json-from-source *spec-json-file*))
+        (sect-tbl   (make-hash-table :test #'equal))
+        (sect-names '()))
+    (labels ((json-attr (key tc)
+               (cdr (or (assoc key tc :test #'eq)
+                        (error "json-attr"))))
+             (execute-test (tc)
+               (cons (json-attr :section tc)
+                     (string= (json-attr :html tc)
+                              (funcall fn (json-attr :markdown tc)))))
+             (get-sect-rec (name)
+               (or (gethash name sect-tbl)
+                   (progn (push name sect-names)
+                          (setf (gethash name sect-tbl) (cons 0 0))))))
+      (loop :for test-case :in test-cases
+            :for (sect-name . passed-p) := (execute-test test-case)
+            :for sect-rec := (get-sect-rec sect-name)
+            :do  (incf (cdr sect-rec))
+                 (when passed-p (incf (car sect-rec))))
+      (loop :for sect-name :in (reverse sect-names)
+            :for (sect-passed . sect-total) := (get-sect-rec sect-name)
+            :for ok/10 := (floor (* 10 (/ sect-passed sect-total)))
+            :for ok-bar := (make-string ok/10 :initial-element #\*)
+            :for ng-bar := (make-string (- 10 ok/10) :initial-element #\-)
+            :do  (format t "~A:~42T~A~46T/ ~A~52T ~A~A~%"
+                         sect-name sect-passed sect-total ok-bar ng-bar)
+            :summing sect-passed :into passed
+            :summing sect-total  :into total
+            :finally (format t
+                             "~%TOTAL:~42T~A~46T/ ~A test cases (~,2F%)~%"
+                             passed
+                             total
+                             (* (/ passed total) 100))))))
 
 (defun test-for (num)
   (let* ((test-data (decode-json-from-source *spec-json-file*))
