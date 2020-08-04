@@ -5,6 +5,7 @@
         :clcm/characters
         :clcm/inlines/parser
         :clcm/inlines/special-characters
+        :clcm/inlines/html-tag
         :clcm/inlines/emphasis)
   (:import-from :cl-ppcre)
   (:export :inlines->html
@@ -13,7 +14,7 @@
 
 ;; api
 (defun inlines->html (strings &key last-break)
-  (%inlines->html strings 
+  (%inlines->html strings
                   (lambda (parser)
                     (or (scan\-escape parser)
                         (scan-code-span parser)
@@ -30,7 +31,7 @@
   ;; > -> &gt;
   ;; & -> &amp;
   ;; double quote -> &quot;
-  (%inlines->html strings 
+  (%inlines->html strings
                   (lambda (parser)
                     (or (scan-special-characters parser)
                         (push-chars parser (read-c parser))))
@@ -47,10 +48,6 @@
 
 (defun output (parser)
   (format nil "~A" (ip-queue parser)))
-
-;;
-(defun scan-html-tag (parser)
-  (scan&push parser *html-tag*))
 
 ;;
 (defun scan-line-break (parser)
