@@ -4,6 +4,7 @@
         :clcm/raw-html-regex
         :clcm/characters
         :clcm/inlines/parser
+        :clcm/inlines/code-span
         :clcm/inlines/special-characters
         :clcm/inlines/html-tag
         :clcm/inlines/emphasis)
@@ -17,7 +18,7 @@
   (%inlines->html strings
                   (lambda (parser)
                     (or (scan\-escape parser)
-                        (scan-code-span parser)
+                        (scan-code-span parser #'inlines->html*)
                         (scan-html-tag parser)
                         (scan-line-break parser)
                         (scan-emphasis parser)
@@ -77,26 +78,3 @@
       (and (scan parser '(:sequence :start-anchor #\\ #\Newline))
            (pos+ parser 2)
            (push-string parser (format nil "<br />~%")))))
-
-;;
-(defun scan-code-span (parser)
-  (let ((start-backticks (scan-to-strings parser "^`+")))
-    (when start-backticks
-      (let ((target (format nil "^~A([^`]|[^`](:?.|\\n)*?[^`])~A(?:[^`]|\\n|$)"
-                            start-backticks start-backticks)))
-      (multiple-value-bind (result strs) (scan-to-strings parser target)
-        (cond (result
-               (pos+ parser (+ (* 2 (length start-backticks)) (length (aref strs 0))))
-               (let ((content (aref strs 0)))
-                 (loop :for i :from 0 :to (1- (length content))
-                       :if (char= (aref content i) #\Newline)
-                       :do (setf (aref content i) #\Space))
-                 (if (and (not (cl-ppcre:scan "^ +$" content))
-                          (>= (length content) 3)
-                          (char= (char content 0) #\Space)
-                          (char= (char content (1- (length content))) #\Space))
-                     (setf content (subseq content 1 (1- (length content)))))
-                 (push-string parser (format nil "<code>~A</code>" (inlines->html* (list content))))))
-              (t
-               (pos+ parser (length start-backticks))
-               (push-string parser start-backticks))))))))
