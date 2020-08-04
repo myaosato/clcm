@@ -1,0 +1,26 @@
+(defpackage :clcm/inlines/backslash-escape
+  (:use :cl
+        :clcm/characters
+        :clcm/inlines/parser)
+  (:export :scan-backslash-escape))
+(in-package :clcm/inlines/backslash-escape)
+
+(defun scan-backslash-escape (parser)
+  (or (and (scan parser "^\\\\\"")
+           (pos+ parser 2)
+           (push-string parser "&quot;"))
+      (and (scan parser "^\\\\<")
+           (pos+ parser 2)
+           (push-string parser "&lt;"))
+      (and (scan parser "^\\\\>")
+           (pos+ parser 2)
+           (push-string parser "&gt;"))
+      (and (scan parser "^\\\\&")
+           (pos+ parser 2)
+           (push-string parser "&amp;"))
+      (and (scan parser `(:sequence :start-anchor #\\ (:char-class ,@*ascii-punctuations*)))
+           (pos+ parser)
+           (push-chars parser (read-c parser)))
+      (and (scan parser '(:sequence :start-anchor #\\ #\Newline))
+           (pos+ parser 2)
+           (push-string parser (format nil "<br />~%")))))

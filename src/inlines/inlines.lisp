@@ -4,6 +4,7 @@
         :clcm/raw-html-regex
         :clcm/characters
         :clcm/inlines/parser
+        :clcm/inlines/backslash-escape
         :clcm/inlines/code-span
         :clcm/inlines/special-characters
         :clcm/inlines/html-tag
@@ -18,7 +19,7 @@
 (defun inlines->html (strings &key last-break)
   (%inlines->html strings
                   (lambda (parser)
-                    (or (scan\-escape parser)
+                    (or (scan-backslash-escape parser)
                         (scan-code-span parser #'inlines->html*)
                         (scan-html-tag parser)
                         (scan-line-break parser)
@@ -50,24 +51,3 @@
 
 (defun output (parser)
   (format nil "~A" (ip-queue parser)))
-
-;;
-(defun scan\-escape (parser)
-  (or (and (scan parser "^\\\\\"")
-           (pos+ parser 2)
-           (push-string parser "&quot;"))
-      (and (scan parser "^\\\\<")
-           (pos+ parser 2)
-           (push-string parser "&lt;"))
-      (and (scan parser "^\\\\>")
-           (pos+ parser 2)
-           (push-string parser "&gt;"))
-      (and (scan parser "^\\\\&")
-           (pos+ parser 2)
-           (push-string parser "&amp;"))
-      (and (scan parser `(:sequence :start-anchor #\\ (:char-class ,@*ascii-punctuations*)))
-           (pos+ parser)
-           (push-chars parser (read-c parser)))
-      (and (scan parser '(:sequence :start-anchor #\\ #\Newline))
-           (pos+ parser 2)
-           (push-string parser (format nil "<br />~%")))))
