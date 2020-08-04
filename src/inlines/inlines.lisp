@@ -7,6 +7,7 @@
         :clcm/inlines/code-span
         :clcm/inlines/special-characters
         :clcm/inlines/html-tag
+        :clcm/inlines/line-break
         :clcm/inlines/emphasis)
   (:import-from :cl-ppcre)
   (:export :inlines->html
@@ -49,14 +50,6 @@
 
 (defun output (parser)
   (format nil "~A" (ip-queue parser)))
-
-;;
-(defun scan-line-break (parser)
-  (or (scan&+ parser '(:sequence :start-anchor (:greedy-repetition 2 nil #\Space) :end-anchor))
-      (and (scan&+ parser '(:sequence :start-anchor (:greedy-repetition 2 nil #\Space) #\Newline))
-           (push-string parser (format nil "<br />~%")))
-      (and (scan&+ parser '(:sequence :start-anchor #\Space #\Newline))
-           (push-string parser (format nil "~%")))))
 
 ;;
 (defun scan\-escape (parser)
