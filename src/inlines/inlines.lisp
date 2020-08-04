@@ -2,11 +2,12 @@
   (:use :cl
         :clcm/utils
         :clcm/raw-html-regex
-        :clcm/inlines/inlines-ltgtamp
         :clcm/characters
+        :clcm/inlines/special-characters
         :clcm/inlines/parser)
   (:import-from :cl-ppcre)
-  (:export :inlines->html))
+  (:export :inlines->html
+           :inlines->html*))
 (in-package :clcm/inlines/inlines)
 
 ;; api
@@ -14,6 +15,22 @@
   (if (null strings) (return-from inlines->html ""))
   (let ((chars (format nil "~{~A~^~%~}~A" strings (if last-break #\Newline ""))))
     (chars->html chars)))
+
+
+(defun inlines->html* (strings &key last-break)
+  ;; only
+  ;; < -> &lt;
+  ;; > -> &gt;
+  ;; & -> &amp;
+  ;; double quote -> &quot;
+  (if (null strings) (return-from inlines->html* ""))
+  (let* ((chars (format nil "~{~A~^~%~}~A" strings (if last-break #\Newline "")))
+         (parser (make-inlines-parser :input chars)))
+      (loop :while (peek-c parser)
+            :do (or (scan-special-characters parser)
+                    (push-chars parser (read-c parser))))
+    (output parser)))
+
 
 ;; main function
 (defun chars->html (chars)
@@ -228,7 +245,7 @@
                           (char= (char content 0) #\Space)
                           (char= (char content (1- (length content))) #\Space))
                      (setf content (subseq content 1 (1- (length content)))))
-                 (push-string parser (format nil "<code>~A</code>" (<>&->ref (list content))))
+                 (push-string parser (format nil "<code>~A</code>" (inlines->html* (list content))))
                  (run parser)))
               (t
                (pos+ parser (length start-backticks))

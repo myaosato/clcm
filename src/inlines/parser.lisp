@@ -70,11 +70,13 @@
 
 (defun push-chars (parser &rest chars)
   (loop :for c :in chars
-        :do (vector-push-extend c (ip-queue parser))))
+        :do (vector-push-extend c (ip-queue parser)))
+  chars)
 
 (defun push-string (parser string)
   (loop :for c :across string
-        :do (vector-push-extend c (ip-queue parser))))
+        :do (vector-push-extend c (ip-queue parser)))
+  string)
 
 (defun replace-string (parser string start end)
   (replace&adjust (ip-queue parser) string :start1 start :end1 end))
