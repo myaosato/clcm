@@ -56,14 +56,12 @@
   (let ((result (scan-to-strings parser regex)))
     (when result
       (pos+ parser (length result))
-      (push-string parser result)
-      t)))
+      (push-string parser result))))
 
 (defun scan&+ (parser regex)
   (let ((result (scan-to-strings parser regex)))
     (when result
-      (pos+ parser (length result))
-      t)))
+      (pos+ parser (length result)))))
 
 (defun pos+ (parser &optional (n 1))
   (incf (ip-position parser) n))

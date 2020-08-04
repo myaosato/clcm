@@ -12,10 +12,16 @@
 
 ;; api
 (defun inlines->html (strings &key last-break)
-  (if (null strings) (return-from inlines->html ""))
-  (let ((chars (format nil "~{~A~^~%~}~A" strings (if last-break #\Newline ""))))
-    (chars->html chars)))
-
+  (%inlines->html strings 
+                  (lambda (parser)
+                    (or (scan\-escape parser)
+                        (scan-code-span parser)
+                        (scan-html-tag parser)
+                        (scan-line-break parser)
+                        (scan-*_ parser)
+                        (scan-special-characters parser)
+                        (push-chars parser (read-c parser))))
+                  last-break))
 
 (defun inlines->html* (strings &key last-break)
   ;; only
@@ -23,44 +29,29 @@
   ;; > -> &gt;
   ;; & -> &amp;
   ;; double quote -> &quot;
-  (if (null strings) (return-from inlines->html* ""))
+  (%inlines->html strings 
+                  (lambda (parser)
+                    (or (scan-special-characters parser)
+                        (push-chars parser (read-c parser))))
+                  last-break))
+
+;; main functions
+(defun %inlines->html (strings proc last-break)
+  (if (null strings) (return-from %inlines->html ""))
   (let* ((chars (format nil "~{~A~^~%~}~A" strings (if last-break #\Newline "")))
          (parser (make-inlines-parser :input chars)))
       (loop :while (peek-c parser)
-            :do (or (scan-special-characters parser)
-                    (push-chars parser (read-c parser))))
+            :do (funcall proc parser))
     (output parser)))
-
-
-;; main function
-(defun chars->html (chars)
-  (let ((parser (make-inlines-parser :input chars)))
-    (run parser)
-    (output parser)))
-
-(defun run (parser)
-  (cond ((null (peek-c parser)) ;; END
-         (output parser))
-        ((scan\-escape parser))
-        ((scan-code-span parser))
-        ((scan-html-tag parser))
-        ((scan-line-break parser))
-        ((scan-*_ parser))
-        ((scan<>& parser))
-        (t ;; read-char
-         (push-chars parser (read-c parser))
-         (run parser))))
 
 (defun output (parser)
   (format nil "~A" (ip-queue parser)))
 
 ;; emphasize
 (defun scan-*_ (parser)
-  (unless (or (scan parser "^\\*") (scan parser "^_"))
-    (return-from scan-*_ nil))
-  (when (or (close-*_ parser)
-            (open-*_ parser))
-    (run parser)))
+  (when (or (scan parser "^\\*") (scan parser "^_"))
+    (or (close-*_ parser)
+        (open-*_ parser))))
 
 (defun *-can-open (parser)
   (or/mv (scan-to-strings parser
@@ -186,46 +177,36 @@
 
 ;;
 (defun scan-html-tag (parser)
-  (if (scan&push parser *html-tag*)
-      (run parser)))
+  (scan&push parser *html-tag*))
 
 ;;
 (defun scan-line-break (parser)
-  (cond ((scan&+ parser '(:sequence :start-anchor (:greedy-repetition 2 nil #\Space) :end-anchor))
-         (run parser))
-        ((scan&+ parser '(:sequence :start-anchor (:greedy-repetition 2 nil #\Space) #\Newline))
-         (push-string parser (format nil "<br />~%"))
-         (run parser))
-        ((scan&+ parser '(:sequence :start-anchor #\Space #\Newline))
-         (push-string parser (format nil "~%"))
-         (run parser))))
+  (or (scan&+ parser '(:sequence :start-anchor (:greedy-repetition 2 nil #\Space) :end-anchor))
+      (and (scan&+ parser '(:sequence :start-anchor (:greedy-repetition 2 nil #\Space) #\Newline))
+           (push-string parser (format nil "<br />~%")))
+      (and (scan&+ parser '(:sequence :start-anchor #\Space #\Newline))
+           (push-string parser (format nil "~%")))))
 
 ;;
 (defun scan\-escape (parser)
-  (cond ((scan parser "^\\\\\"")
-         (pos+ parser 2)
-         (push-string parser "&quot;")
-         (run parser))
-        ((scan parser "^\\\\<")
-         (pos+ parser 2)
-         (push-string parser "&lt;")
-         (run parser))
-        ((scan parser "^\\\\>")
-         (pos+ parser 2)
-         (push-string parser "&gt;")
-         (run parser))
-        ((scan parser "^\\\\&")
-         (pos+ parser 2)
-         (push-string parser "&amp;")
-         (run parser))
-        ((scan parser `(:sequence :start-anchor #\\ (:char-class ,@*ascii-punctuations*)))
-         (pos+ parser)
-         (push-chars parser (read-c parser))
-         (run parser))
-        ((scan parser '(:sequence :start-anchor #\\ #\Newline))
-         (pos+ parser 2)
-         (push-string parser (format nil "<br />~%"))
-         (run parser))))
+  (or (and (scan parser "^\\\\\"")
+           (pos+ parser 2)
+           (push-string parser "&quot;"))
+      (and (scan parser "^\\\\<")
+           (pos+ parser 2)
+           (push-string parser "&lt;"))
+      (and (scan parser "^\\\\>")
+           (pos+ parser 2)
+           (push-string parser "&gt;"))
+      (and (scan parser "^\\\\&")
+           (pos+ parser 2)
+           (push-string parser "&amp;"))
+      (and (scan parser `(:sequence :start-anchor #\\ (:char-class ,@*ascii-punctuations*)))
+           (pos+ parser)
+           (push-chars parser (read-c parser)))
+      (and (scan parser '(:sequence :start-anchor #\\ #\Newline))
+           (pos+ parser 2)
+           (push-string parser (format nil "<br />~%")))))
 
 ;;
 (defun scan-code-span (parser)
@@ -245,32 +226,7 @@
                           (char= (char content 0) #\Space)
                           (char= (char content (1- (length content))) #\Space))
                      (setf content (subseq content 1 (1- (length content)))))
-                 (push-string parser (format nil "<code>~A</code>" (inlines->html* (list content))))
-                 (run parser)))
+                 (push-string parser (format nil "<code>~A</code>" (inlines->html* (list content))))))
               (t
                (pos+ parser (length start-backticks))
-               (push-string parser start-backticks)
-               (run parser))))))))
-
-;;
-(defun scan<>& (parser)
-  (cond ((scan parser "^\"")
-         (pos+ parser)
-         (push-string parser "&quot;")
-         (run parser))
-        ((scan parser "^<")
-         (pos+ parser)
-         (push-string parser "&lt;")
-         (run parser))
-        ((scan parser "^>")
-         (pos+ parser)
-         (push-string parser "&gt;")
-         (run parser))
-        ((scan parser "^&")
-         (pos+ parser)
-         (push-string parser "&amp;")
-         (run parser))))
-
-;;
-(defun is-backslash (char)
-  (and char (char= char #\\)))
+               (push-string parser start-backticks))))))))
