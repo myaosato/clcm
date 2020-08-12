@@ -27,13 +27,14 @@
                         (scan-special-characters parser)
                         (push-chars parser (read-c parser))))
                   last-break))
+  
 
 (defun inlines->html* (strings &key last-break)
   ;; only
   ;; < -> &lt;
   ;; > -> &gt;
   ;; & -> &amp;
-  ;; double quote -> &quot;
+  ;; " -> &quot;
   (%inlines->html strings
                   (lambda (parser)
                     (or (scan-special-characters parser)
@@ -47,6 +48,7 @@
          (parser (make-inlines-parser :input chars)))
       (loop :while (peek-c parser)
             :do (funcall proc parser))
+    (process-emphasis parser)
     (output parser)))
 
 (defun output (parser)
