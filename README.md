@@ -29,7 +29,7 @@ Common Lisp CommonMark
 - [ ] Entity and numeric character references
 - [x] Code spans
 - [x] Emphasis and strong emphasis (bugs remained
-- [ ] Links
+- [ ] Links (partially supported)
 - [ ] Images
 - [ ] Autolinks
 - [x] Raw HTML

@@ -115,11 +115,12 @@
   (find (peek-c parser len) *punctuations*))
 
 ;; process emphasis
-(defun process-emphasis (parser)
+(defun process-emphasis (parser &optional (bottom 0))
   (let ((delims (ip-stack parser))
         (offset 0) ;
         (stack nil))
-    (loop :for delimiter :across delims
+    (loop :for _ :from bottom :to (1- (length delims))
+          :for delimiter := (aref delims _)
           :do (cond ((not (or (eq (dl-type delimiter) :*)
                               (eq (dl-type delimiter) :_)))
                      :do-nothing)

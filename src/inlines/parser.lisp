@@ -20,10 +20,12 @@
            :dl-type
            :dl-open
            :dl-close
+           :dl-active
            :dl-start
-           :dl-num
+           :dl-num           
            :shift-position
-           :push-op))
+           :push-op
+           :pop-stack-to-bottom))
 (in-package :clcm/inlines/parser)
 
 ;; op stack
@@ -31,6 +33,7 @@
   (type nil)
   (open nil)
   (close nil)
+  (active t)
   (start 0)
   (num 0))
 
@@ -95,6 +98,11 @@
 (defun replace-string (parser string start end)
   (replace&adjust (ip-queue parser) string :start1 start :end1 end))
 
-;; op stack
+;; delimiter stack
 (defun push-op (parser iop)
   (vector-push-extend iop (ip-stack parser)))
+
+(defun pop-stack-to-bottom (parser bottom)
+  (let ((stack (ip-stack parser)))
+    (loop :for _ :from (1- (length stack)) :downto bottom
+          :do (vector-pop stack))))

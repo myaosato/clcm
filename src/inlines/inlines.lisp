@@ -9,7 +9,8 @@
         :clcm/inlines/special-characters
         :clcm/inlines/html-tag
         :clcm/inlines/line-break
-        :clcm/inlines/emphasis)
+        :clcm/inlines/emphasis
+        :clcm/inlines/link-image)
   (:import-from :cl-ppcre)
   (:export :inlines->html
            :inlines->html*))
@@ -24,6 +25,9 @@
                         (scan-html-tag parser)
                         (scan-line-break parser)
                         (scan-emphasis parser)
+                        (scan-open-link parser)
+                        (scan-open-image parser)
+                        (scan-close-link-image parser)
                         (scan-special-characters parser)
                         (push-chars parser (read-c parser))))
                   last-break))

@@ -51,8 +51,7 @@
          (dotimes (_ delta) (vector-push-extend #\Null sequence1))
          (dotimes (_ (- delta)) (vector-pop sequence1)))
      (replace sequence1 source :start1 start1)
-     (replace sequence1 rest :start1 (+ start1 (length source)))
-     sequence1))
+     (replace sequence1 rest :start1 (+ start1 (length source)))))
 
 ;; multiple-value-or
 (defmacro or/mv (form &rest forms)  
