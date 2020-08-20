@@ -26,9 +26,9 @@ Common Lisp CommonMark
 ### Inlines
 
 - [x] Backslash escapes
-- [ ] Entity and numeric character references (character entity references only supported
+- [x] Entity and numeric character references
 - [x] Code spans
-- [x] Emphasis and strong emphasis (bugs remained
+- [x] Emphasis and strong emphasis
 - [ ] Links (partially supported)
 - [ ] Images
 - [ ] Autolinks
@@ -36,3 +36,5 @@ Common Lisp CommonMark
 - [x] Hard line breaks
 - [x] Soft line breaks
 - [x] Textual content
+
+Check mark dose not mean complete, bugs remain.

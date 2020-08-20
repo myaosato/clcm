@@ -82,4 +82,5 @@
     (:list-items (test-range 223 270))
     (:lists (test-range 271 296))
     ;;
+    (:entity-and-numeric-character-references (test-range 311 327))
     (:code-spans (test-range 328 349))))
