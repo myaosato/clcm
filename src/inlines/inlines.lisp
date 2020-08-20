@@ -5,6 +5,7 @@
         :clcm/characters
         :clcm/inlines/parser
         :clcm/inlines/backslash-escape
+        :clcm/inlines/character-references
         :clcm/inlines/code-span
         :clcm/inlines/special-characters
         :clcm/inlines/html-tag
@@ -21,6 +22,7 @@
   (%inlines->html strings
                   (lambda (parser)
                     (or (scan-backslash-escape parser)
+                        (scan-character-references parser)
                         (scan-code-span parser #'inlines->html*)
                         (scan-html-tag parser)
                         (scan-line-break parser)
