@@ -11,7 +11,8 @@
         :clcm/inlines/html-tag
         :clcm/inlines/line-break
         :clcm/inlines/emphasis
-        :clcm/inlines/link-image)
+        :clcm/inlines/link-image
+        :clcm/inlines/autolink)
   (:import-from :cl-ppcre)
   (:export :inlines->html
            :inlines->html*))
@@ -24,6 +25,7 @@
                     (or (scan-backslash-escape parser)
                         (scan-character-references parser)
                         (scan-code-span parser #'inlines->html*)
+                        (scan-autolink parser)
                         (scan-html-tag parser)
                         (scan-line-break parser)
                         (scan-emphasis parser)

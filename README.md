@@ -31,7 +31,7 @@ Common Lisp CommonMark
 - [x] Emphasis and strong emphasis
 - [ ] Links (partially supported)
 - [ ] Images
-- [ ] Autolinks
+- [x] Autolinks
 - [x] Raw HTML
 - [x] Hard line breaks
 - [x] Soft line breaks
