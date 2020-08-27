@@ -48,12 +48,19 @@
                  "]("
                  (:register
                   (:alternation
+                   "<>"
                    (:sequence
                     "<"
-                    (:greedy-repetition 0 nil
-                     (:inverted-char-class ,(code-char #x0a) ,(code-char #x0d)))
+                    (:sequence
+                     (:greedy-repetition 0 nil
+                      (:inverted-char-class ,(code-char #x0a) ,(code-char #x0d)))
+                     (:inverted-char-class #\\ ,(code-char #x0a) ,(code-char #x0d)))
                     ">")
-                   (:greedy-repetition 0 nil (:inverted-char-class #\) :whitespace-char-class))))
+                   (:greedy-repetition 0 nil (:inverted-char-class
+                                              #\)
+                                              #\<
+                                              #\>
+                                              :whitespace-char-class))))
                  (:greedy-repetition 0 nil :whitespace-char-class)
                  (:register
                   (:greedy-repetition 0 1 
