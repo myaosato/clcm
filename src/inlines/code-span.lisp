@@ -8,8 +8,12 @@
 (defun scan-code-span (parser inlines->html*)
   (let ((start-backticks (scan-to-strings parser "^`+")))
     (when start-backticks
-      (let ((target (format nil "^~A([^`]|[^`](:?.|\\n)*?[^`])~A(?:[^`]|\\n|$)"
-                            start-backticks start-backticks)))
+      (let ((target (format nil
+                            "^~A([^`]|[^`](:?[^`]|\\n|[^`]`{0, ~A}[^`]|[^`]`{~A,}[^`])*?[^`])~A(?:[^`]|\\n|$)"
+                            start-backticks
+                            (1- (length start-backticks))
+                            (1+ (length start-backticks))
+                            start-backticks)))
       (multiple-value-bind (result strs) (scan-to-strings parser target)
         (cond (result
                (pos+ parser (+ (* 2 (length start-backticks)) (length (aref strs 0))))
