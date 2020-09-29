@@ -25,11 +25,11 @@
 
 (defun scan-close-link-image (parser)
   (when (scan parser "^]")
-    (let ((open-pos (find-opening-delimiter parser)))
+    (multiple-value-bind (open-pos delimiter) (find-opening-delimiter parser)
       (when open-pos
         (cond ((is-link-close parser)
                (process-emphasis parser (1+ open-pos))
-               (make-link parser open-pos)
+               (make-link parser (dl-start delimiter))
                (pop-stack-to-bottom parser open-pos)
                (inactivate-stack parser)
                t)
@@ -63,7 +63,7 @@
                                               :whitespace-char-class))))
                  (:greedy-repetition 0 nil :whitespace-char-class)
                  (:register
-                  (:greedy-repetition 0 1 
+                  (:greedy-repetition 0 1
                    (:alternation
                     (:sequence "\"" (:regex "(?:\\\\\"|[^\"])*") "\"")
                     (:sequence "'" (:regex "(?:\\\\'|[^'])*") "'")
