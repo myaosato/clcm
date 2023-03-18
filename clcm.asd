@@ -2,7 +2,7 @@
   :depends-on ("cl-ppcre" "clcm/clcm")
   :class :package-inferred-system
   :license "mit"
-  :version (:read-file-line "./version")
+  :version 0.1.0
   :author "miyao satoaki"
   :pathname "src/"
   :in-order-to ((test-op (test-op "clcm/test"))))
