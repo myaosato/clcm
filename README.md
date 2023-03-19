@@ -8,33 +8,33 @@ Common Lisp CommonMark
 
 ### Blocks
 
-- [x] Tabs
-- [x] Precedence
-- [x] Thematic breaks
-- [x] ATX headings
-- [x] Setext headings
-- [x] Indented code blocks
-- [x] Fenced code blocks
-- [x] HTML blocks
+- [ ] Tabs
+- [ ] Precedence
+- [ ] Thematic breaks
+- [ ] ATX headings
+- [ ] Setext headings
+- [ ] Indented code blocks
+- [ ] Fenced code blocks
+- [ ] HTML blocks
 - [ ] Link reference definitions
-- [x] Paragraphs
-- [x] Blank lines
-- [x] Block quotes
-- [x] List items
-- [x] Lists
+- [ ] Paragraphs
+- [ ] Blank lines
+- [ ] Block quotes
+- [ ] List items
+- [ ] Lists
 
 ### Inlines
 
-- [x] Backslash escapes
-- [x] Entity and numeric character references
-- [x] Code spans
-- [x] Emphasis and strong emphasis
+- [ ] Backslash escapes
+- [ ] Entity and numeric character references
+- [ ] Code spans
+- [ ] Emphasis and strong emphasis
 - [ ] Links (partially supported)
 - [ ] Images
-- [x] Autolinks
-- [x] Raw HTML
-- [x] Hard line breaks
-- [x] Soft line breaks
-- [x] Textual content
+- [ ] Autolinks
+- [ ] Raw HTML
+- [ ] Hard line breaks
+- [ ] Soft line breaks
+- [ ] Textual content
 
 Check mark dose not mean complete, bugs remain.

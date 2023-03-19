@@ -8,7 +8,7 @@
   :in-order-to ((test-op (test-op "clcm/test"))))
 
 (defsystem "clcm/test"
-  :depends-on ("cl-json" "clcm/test/main")
+  :depends-on ("cl-json" "fiveam" "clcm/test/main")
   :license "mit"
   :author "miyao satoaki"
   :perform (test-op (op sys) (uiop:symbol-call :clcm/test/main :test)))
