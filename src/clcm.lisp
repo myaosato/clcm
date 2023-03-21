@@ -1,6 +1,7 @@
 (defpackage :clcm/clcm
   (:nicknames :clcm)
   (:use :cl)
+  (:import-from :clcm/inlines)
   (:export :cm->html))
 
 (in-package :clcm/clcm)
