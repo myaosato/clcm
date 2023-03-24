@@ -6,8 +6,8 @@
 (in-package :clcm/line-breaks)
 
 (defun check-line-breaks (line pos)
-  (let* ((re-hard-line-break (format nil "^(?:\\\\| {2,})[~A~A]" #\linefeed #\return))
-         (re-soft-line-break (format nil "^ ?[~A~A]" #\linefeed #\return))
+  (let* ((re-hard-line-break "^(?:\\\\| {2,})[\\n\\r]"))
+         (re-soft-line-break "^ ?[\\n\\r]"))
          (hard-line-break (scan-to-strings re-hard-line-break line :start pos))
          (soft-line-break (or hard-line-break
                               (scan-to-strings re-soft-line-break line :start pos))))
