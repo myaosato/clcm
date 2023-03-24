@@ -10,11 +10,11 @@
          (re-code  (format nil "[\\w\\W]+?(?=~A(?:[^`]|$))" backticks))
          (content (and backticks (scan-to-strings re-code lines :start (+ pos (length backticks)))))
          (content-length (length content))
-         (backtick-length (length (and content backticks))))
+         (backtick-length (length backticks)))
     (setf content (and content (map 'string
                                     (lambda (x) (if (or (char= #\linefeed x) (char= #\return x)) #\space x))
                                     content)))
     (when (scan-to-strings "^ .*[^ ].* $" content)
       (setf content (subseq content 1 (1- (length content)))))
-    (cons (and content (list :code content)) (+ pos (* backtick-length 2) content-length))))
-
+    (when content
+      (cons (list :code content) (+ pos (* backtick-length 2) content-length)))))

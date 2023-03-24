@@ -21,4 +21,4 @@
           (uri-link
            (let ((uri (subseq uri-link 1 (1- uri-link-length))))
              (cons (list :autolink uri uri) (+ pos uri-link-length))))
-          (t (cons nil pos)))))
+          (t nil))))

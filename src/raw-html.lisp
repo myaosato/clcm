@@ -31,8 +31,7 @@
                                   re-processing-instruction
                                   re-declaration
                                   re-cdata-section))
-(defun check-raw-html (line pos)
-  (let* ((raw-html (scan-to-strings re-html-tag line :start pos)))
-    (if raw-html
-        (cons (list :raw-html raw-html) (+ pos (length raw-html)))
-        (cons nil pos))))
+(defun check-raw-html (lines pos)
+  (let* ((raw-html (scan-to-strings re-html-tag lines :start pos)))
+    (when raw-html
+      (cons (list :raw-html raw-html) (+ pos (length raw-html))))))
