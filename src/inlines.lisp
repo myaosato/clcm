@@ -8,6 +8,8 @@
                 :check-line-breaks)
   (:import-from :clcm/raw-html
                 :check-raw-html)
+  (:import-from :clcm/backslash-escapes
+                :check-backslash-escapes)
   (:export :parse-inline))
 (in-package :clcm/inlines)
 
@@ -16,7 +18,8 @@
     (loop :with done := 0
           :with pos := 0
           :while (< pos (length lines))
-          :for result := (or (check-code-spans lines pos)
+          :for result := (or (check-backslash-escapes lines pos)
+                             (check-code-spans lines pos)
                              (check-autolinks lines pos)
                              (check-line-breaks lines pos)
                              (check-raw-html lines pos))
