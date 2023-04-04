@@ -10,4 +10,3 @@
                       (scan-to-strings "^[-!\"#$%&'()*+,.:;<=>?@[\\]^_`{|}~\\\\]" lines :start (1+ pos)))))
     (when escaped
       (cons (list :text escaped) (+ pos 2)))))
-
