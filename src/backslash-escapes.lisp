@@ -9,4 +9,4 @@
   (let ((escaped (and (scan-to-strings "^\\\\" lines :start pos)
                       (scan-to-strings "^[-!\"#$%&'()*+,.:;<=>?@[\\]^_`{|}~\\\\]" lines :start (1+ pos)))))
     (when escaped
-      (cons (list :text escaped) (+ pos 2)))))
+      (list :backslash-escape (list :text escaped) (+ pos 2)))))

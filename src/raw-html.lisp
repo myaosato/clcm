@@ -34,4 +34,4 @@
 (defun check-raw-html (lines pos)
   (let* ((raw-html (scan-to-strings re-html-tag lines :start pos)))
     (when raw-html
-      (cons (list :raw-html raw-html) (+ pos (length raw-html))))))
+      (list :raw-html (list :raw-html raw-html) (+ pos (length raw-html))))))

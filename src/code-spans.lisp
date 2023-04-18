@@ -17,4 +17,4 @@
     (when (scan-to-strings "^ .*[^ ].* $" content)
       (setf content (subseq content 1 (1- (length content)))))
     (when content
-      (cons (list :code content) (+ pos (* backtick-length 2) content-length)))))
+      (list :code (list :code content) (+ pos (* backtick-length 2) content-length)))))

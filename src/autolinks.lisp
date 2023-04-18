@@ -17,8 +17,8 @@
          (email-link-length (length email-link)))
     (cond (email-link
            (let ((email (subseq email-link 1 (1- email-link-length))))
-             (cons (list :autolink (format nil "mailto:~A" email) email) (+ pos email-link-length))))
+             (list :autolink (list :autolink (format nil "mailto:~A" email) email) (+ pos email-link-length))))
           (uri-link
            (let ((uri (subseq uri-link 1 (1- uri-link-length))))
-             (cons (list :autolink uri uri) (+ pos uri-link-length))))
+             (list :autolink (list :autolink uri uri) (+ pos uri-link-length))))
           (t nil))))

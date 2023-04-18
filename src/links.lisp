@@ -15,7 +15,7 @@
 ;; check-link-opener
 (defun check-link-opener (lines pos)
   (when (scan-to-strings link-open lines :start pos)
-    (cons (list :link-opener "[") (1+ pos))))
+    (list :link-opener "[" (1+ pos))))
 
 ;; check-link-closer
 (defun check-close-link-text (lines pos)
@@ -83,4 +83,4 @@
     (setf p (check-separater lines p))
     (unless (check-close-link lines p)
       (return-from check-link-closer))
-    (cons (list :link-closer dest title) (1+ p))))
+    (list :link-closer (list dest title) (1+ p))))

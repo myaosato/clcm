@@ -12,7 +12,7 @@
          (soft-line-break (or hard-line-break
                               (scan-to-strings re-soft-line-break lines :start pos))))
     (cond (hard-line-break
-           (cons :hard-line-break (+ pos (length hard-line-break))))
+           (list :hard-line-break :hard-line-break (+ pos (length hard-line-break))))
           (soft-line-break
-           (cons :soft-line-break (+ pos (length soft-line-break))))
+           (list :soft-line-break :soft-line-break (+ pos (length soft-line-break))))
           (t nil))))
