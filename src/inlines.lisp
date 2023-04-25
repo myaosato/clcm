@@ -12,7 +12,8 @@
                 :check-backslash-escapes)
   (:import-from :clcm/links
                 :check-link-opener
-                :check-link-closer)
+                :check-link-closer
+                :check-close-link-text)
   (:export :parse-inline))
 (in-package :clcm/inlines)
 
@@ -37,7 +38,25 @@
     (setf (next stack) delimiter)
     delimiter))
 
-; inline parser 
+(defun search-delimiter (delimiter type)
+  (when delimiter
+    (if (eq (delimiter-type delimiter) type)
+        delimiter
+        (search-delimiter (prev delimiter) type))))
+
+(defun remove-delimiter (delimiter)
+  (let ((prev (prev delimiter))
+        (next (next delimiter)))
+    (setf (next prev) next)
+    (setf (prev next) prev)))
+
+; inline parser
+(defmacro push-parsed (pointer target)
+  `(let ((previous pointer))
+     (setf (cdr ,pointer) (list ,target))
+     (setf ,pointer (cdr ,pointer))
+     previous))
+
 (defun parse-inline (lines)
   (let* ((inlines (list nil))
          (pointer inlines)
@@ -51,27 +70,40 @@
                              (check-line-breaks lines pos)
                              (check-raw-html lines pos)
                              (check-link-opener lines pos)
-                             (check-link-closer lines pos))
+                             (check-close-link-text lines pos))
           :if result
           :do (destructuring-bind (type parsed next) result
                 (when (/= pos done)
-                  (setf (cdr pointer) (list (subseq lines done pos)))
-                  (setf pointer (cdr pointer)))
+                  (push-parsed pointer (subseq lines done pos)))
                 (cond ((eq type :link-opener)
-                       (setf (cdr pointer) (list parsed))
+                       (let ((pushed (push-parsed pointer parsed)))
                        (setf delimiter-stack
-                             (push-delimiter delimiter-stack :link (cdr pointer)))
-                       (setf pointer (cdr pointer)))
+                             (push-delimiter delimiter-stack :link pushed))))
                       ((eq type :link-closer)
-                       )
+                       (let ((opener (search-delimiter delimiter-stack :link)))
+                         (cond ((and opener (is-active opener))
+                                (let ((closer (check-link-closer lines (1+ pos))))
+                                  (cond (closer
+                                         (destructuring-bind (type (dest title) next-pos) closer
+                                           (declare (ignore type))
+                                           (let ((content (cddr (pointer opener))))
+                                             ;; (pointer opener) := ("[" "foo" ... )
+                                             (setf pointer (pointer opener))
+                                             (push-parsed pointer (list :link content dest title)))
+                                           (setf next next-pos)))
+                                        (t
+                                         (push-parsed pointer parsed)))))
+                               ((and opener (not (is-active opener)))
+                                (remove-delimiter opener)
+                                (push-parsed pointer parsed))
+                               (t
+                                (push-parsed pointer parsed)))))
                       (t
-                       (setf (cdr pointer) (list parsed))
-                       (setf pointer (cdr pointer))))
+                       (push-parsed pointer parsed)))
                 (setf done next)
                 (setf pos next))
           :else
           :do (incf pos)
           :finally (when (/= pos done)
-                     (setf (cdr pointer) (list (subseq lines done pos)))
-                     (setf pointer (cdr pointer))))
+                     (push-parsed pointer (subseq lines done pos))))
     (values (cdr inlines) delimiter-stack)))

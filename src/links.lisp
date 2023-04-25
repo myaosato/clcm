@@ -3,7 +3,8 @@
   (:import-from :cl-ppcre
                 :scan-to-strings)
   (:export :check-link-opener
-           :check-link-closer))
+           :check-link-closer
+           :check-close-link-text))
 (in-package :clcm/links)
 
 (defparameter link-open "^\\[")
@@ -19,7 +20,11 @@
 
 ;; check-link-closer
 (defun check-close-link-text (lines pos)
-  (scan-to-strings "^]\\(" lines :start pos))
+  (when (scan-to-strings "^]" lines :start pos)
+    (list :link-closer "]" (1+ pos))))
+
+(defun check-parenthsis-after-link-text (lines pos)
+  (scan-to-strings "^\\(" lines :start pos))
 
 (defun check-destination (lines pos)
   (let ((<dest> (scan-to-strings "^<(?:[^<>\\n\\r]|\\\\<|\\\\>)*>" lines :start pos)))
@@ -65,9 +70,9 @@
   (let ((p pos)
         (dest nil)
         (title nil))
-    (unless (check-close-link-text lines p)
+    (unless (check-parenthsis-after-link-text lines p)
       (return-from check-link-closer))
-    (incf p 2)
+    (incf p)
     (setf p (check-separater lines p))
     (let ((result (check-destination lines p)))
       (when result
@@ -83,4 +88,4 @@
     (setf p (check-separater lines p))
     (unless (check-close-link lines p)
       (return-from check-link-closer))
-    (list :link-closer (list dest title) (1+ p))))
+    (list :link (list dest title) (1+ p))))
