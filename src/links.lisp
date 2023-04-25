@@ -3,11 +3,13 @@
   (:import-from :cl-ppcre
                 :scan-to-strings)
   (:export :check-link-opener
+           :check-image-opener
            :check-link-closer
            :check-close-link-text))
 (in-package :clcm/links)
 
 (defparameter link-open "^\\[")
+(defparameter image-open "^!\\[")
 (defparameter link-title (format nil "^(?:~A|~A|~A)"
                                  "\"(?:\\\\\"|[^\"])*\""
                                  "'(?:\\\\'|[^'])*'"
@@ -17,6 +19,12 @@
 (defun check-link-opener (lines pos)
   (when (scan-to-strings link-open lines :start pos)
     (list :link-opener "[" (1+ pos))))
+
+;; check-image-opener
+(defun check-image-opener (lines pos)
+  (when (scan-to-strings image-open lines :start pos)
+    (list :image-opener "![" (+ pos 2))))
+
 
 ;; check-link-closer
 (defun check-close-link-text (lines pos)
@@ -88,4 +96,4 @@
     (setf p (check-separater lines p))
     (unless (check-close-link lines p)
       (return-from check-link-closer))
-    (list :link (list dest title) (1+ p))))
+    (list :link-or-image (list dest title) (1+ p))))

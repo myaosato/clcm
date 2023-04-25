@@ -12,6 +12,7 @@
                 :check-backslash-escapes)
   (:import-from :clcm/links
                 :check-link-opener
+                :check-image-opener
                 :check-link-closer
                 :check-close-link-text)
   (:export :parse-inline))
@@ -38,17 +39,23 @@
     (setf (next stack) delimiter)
     delimiter))
 
-(defun search-delimiter (delimiter type)
+(defun search-delimiter (delimiter &rest types)
   (when delimiter
-    (if (eq (delimiter-type delimiter) type)
+    (if (find (delimiter-type delimiter) types)
         delimiter
-        (search-delimiter (prev delimiter) type))))
+        (search-delimiter (prev delimiter) types))))
 
 (defun remove-delimiter (delimiter)
   (let ((prev (prev delimiter))
         (next (next delimiter)))
-    (setf (next prev) next)
-    (setf (prev next) prev)))
+    (when prev (setf (next prev) next))
+    (when next (setf (prev next) prev))))
+
+(defun inactivate-before (delimiter &rest types)
+  (when delimiter
+    (when (find (delimiter-type delimiter) types)
+      (setf (is-active delimiter) nil))
+    (inactivate-before (prev delimiter))))
 
 ; inline parser
 (defmacro push-parsed (pointer target)
@@ -70,6 +77,7 @@
                              (check-line-breaks lines pos)
                              (check-raw-html lines pos)
                              (check-link-opener lines pos)
+                             (check-image-opener lines pos)
                              (check-close-link-text lines pos))
           :if result
           :do (destructuring-bind (type parsed next) result
@@ -79,20 +87,28 @@
                        (let ((pushed (push-parsed pointer parsed)))
                        (setf delimiter-stack
                              (push-delimiter delimiter-stack :link pushed))))
+                      ((eq type :image-opener)
+                       (let ((pushed (push-parsed pointer parsed)))
+                       (setf delimiter-stack
+                             (push-delimiter delimiter-stack :image pushed))))
                       ((eq type :link-closer)
-                       (let ((opener (search-delimiter delimiter-stack :link)))
+                       (let ((opener (search-delimiter delimiter-stack :link :image)))
                          (cond ((and opener (is-active opener))
                                 (let ((closer (check-link-closer lines (1+ pos))))
-                                  (cond (closer
-                                         (destructuring-bind (type (dest title) next-pos) closer
-                                           (declare (ignore type))
-                                           (let ((content (cddr (pointer opener))))
-                                             ;; (pointer opener) := ("[" "foo" ... )
-                                             (setf pointer (pointer opener))
-                                             (push-parsed pointer (list :link content dest title)))
-                                           (setf next next-pos)))
-                                        (t
-                                         (push-parsed pointer parsed)))))
+                                  (if closer
+                                      (destructuring-bind (_ (dest title) next-pos) closer
+                                        (declare (ignore _))
+                                        (let ((type (delimiter-type opener))
+                                              (content (cddr (pointer opener))))
+                                          ;; (pointer opener) := ("[" "foo" ... ) or ("![" "foo" ... )
+                                          (setf pointer (pointer opener))
+                                          (push-parsed pointer (list type content dest title))
+                                          (remove-delimiter opener)
+                                          (when (eq type :link)
+                                            ; TODO inactivate
+                                            (inactivate-before opener :link))
+                                          (setf next next-pos)))
+                                      (push-parsed pointer parsed))))
                                ((and opener (not (is-active opener)))
                                 (remove-delimiter opener)
                                 (push-parsed pointer parsed))
