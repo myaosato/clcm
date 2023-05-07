@@ -1,5 +1,5 @@
 (defsystem "clcm"
-  :depends-on ("cl-ppcre" "clcm/clcm")
+  :depends-on ("cl-ppcre" "cl-unicode" "clcm/clcm")
   :class :package-inferred-system
   :license "mit"
   :version "0.1.0"

@@ -17,6 +17,7 @@
                 :check-image-opener
                 :check-link-closer
                 :check-close-link-text)
+  (:import-from :clcm/emphasis)
   (:import-from :clcm/parser/inlines
                 :make-inline-parser
                 :push-parsed
@@ -35,35 +36,32 @@
 
 ;; return next position (on lines)
 (defun process-result (parser pos type parsed next)
-  (when (eq type :link-opener)
-    (push-delimiter parser parsed :link)
-    (return-from process-result next))
-  (when (eq type :image-opener)
-    (push-delimiter parser parsed :image)
-    (return-from process-result next))
-  (when (eq type :link-closer)
-    (let ((opener (search-delimiter parser :link :image)))
-      (cond ((and opener (delimiter-is-active opener))
-             (let ((closer (check-link-closer (parser-lines parser) (1+ pos))))
-               (if closer
-                   (destructuring-bind (_ (dest title) next-pos) closer
-                     (declare (ignore _))
-                     (let ((type (delimiter-type opener))
-                           (content (delimiter-content opener)))
-                       (update-pointer parser opener)
-                       (push-parsed parser (list type content dest title))
-                       (remove-delimiter parser opener)
-                       (when (eq type :link)
-                         (inactivate-before opener :link))
-                       (setf next next-pos)))
-                   (push-parsed parser parsed))))
-            (opener ;; (not (delimiter-is-active opener)) case
-                  (remove-delimiter parser opener)
+  (cond ((eq type :link-opener)
+         (push-delimiter parser parsed :link))
+        ((eq type :image-opener)
+         (push-delimiter parser parsed :image))
+        ((eq type :link-closer)
+         (let ((opener (search-delimiter parser :link :image)))
+           (cond ((null opener)
                   (push-parsed parser parsed))
-            (t
-             (push-parsed parser parsed))))
-    (return-from process-result next))
-  (push-parsed parser parsed)
+                 ((not (delimiter-is-active opener))
+                  (push-parsed parser parsed)
+                  (remove-delimiter parser opener))
+                 (t
+                  (if (closer (check-link-closer (parser-lines parser) (1+ pos)))
+                      (destructuring-bind (_ (dest title) next-pos) closer
+                        (declare (ignore _))
+                        (let ((type (delimiter-type opener))
+                              (content (delimiter-content opener)))
+                          (update-pointer parser opener)
+                          (push-parsed parser (list type content dest title))
+                          (remove-delimiter parser opener)
+                          (when (eq type :link)
+                            (inactivate-before opener :link))
+                          (setf next next-pos)))
+                      (push-parsed parser parsed))))))
+        (t 
+         (push-parsed parser parsed)))
   next)
 
 (defun parse-inline (lines)
