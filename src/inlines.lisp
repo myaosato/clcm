@@ -17,7 +17,8 @@
                 :check-image-opener
                 :check-link-closer
                 :check-close-link-text)
-  (:import-from :clcm/emphasis)
+  (:import-from :clcm/emphasis
+                :check-emphasis)
   (:import-from :clcm/parser/inlines
                 :make-inline-parser
                 :push-parsed
@@ -28,15 +29,26 @@
                 :inactivate-before
                 :parser-lines
                 :parser-inlines
+                :parser-delimiters-bottom
                 :delimiter-is-active
                 :delimiter-type
-                :delimiter-content)
+                :delimiter-content
+                :delimiter-next
+                :delimiter-prev
+                :delimiter-closer-p
+                :delimiter-opener-p)
   (:export :parse-inline))
 (in-package :clcm/inlines)
 
 ;; return next position (on lines)
 (defun process-result (parser pos type parsed next)
-  (cond ((eq type :link-opener)
+  (cond ((eq type :emphasis)
+         (destructuring-bind (delimiter-type delimiter-run is-opener is-closer) parsed
+           (push-delimiter parser delimiter-run delimiter-type
+                           :number-of (length delimiter-run)
+                           :is-opener is-opener
+                           :is-closer is-closer)))
+        ((eq type :link-opener)
          (push-delimiter parser parsed :link))
         ((eq type :image-opener)
          (push-delimiter parser parsed :image))
@@ -90,3 +102,42 @@
           :finally (when (/= pos done)
                      (push-parsed parser (subseq lines done pos))))
     (cdr (parser-inlines parser))))
+
+
+;; TODO 積まれているものの順番とか呼ばれ方とかあまりまともに考えられていないので要確認
+(defun find-closer (current-position)
+  (unless current-position
+    (return-from find-closer))
+  (if (and (delimiter-closer-p current-positon)
+           (or (eq (delmiter-type current-positon) :emphasis-*)
+               (eq (delmiter-type current-positon) :emphasis-_)))
+      current-position
+      (find-closer (delimiter-next current-position))))
+(defun find-opener (delmiter openers-bottom type)
+  (when (eq delimiter openers-bottom)
+    (return-from find-opener))
+  (if (and (delimiter-opener-p delimiter)
+           (eq (delmiter-type delimiter) type))
+      delimiter
+      (find-opener (delimiter-prev delmiter) openers-bottom type)))
+(defun parse-emphasis (parser &optional (bottom nil)) ;; TODO design return value
+  (unless (parser-delimiters-bottom parser)
+    (return-from parse-emphasis))
+  (let ((current-position (if bottom
+                              (delimiter-next bottom)
+                              (parser-delimiters-bottom parser))))
+        (openers-bottom bottom))
+    (loop :with opener
+          :while current-position
+          :do (setf current-position (find-closer current-position))
+          :do (setf opener (find-opener (delimiter-prev current-position) openers-bottom type))
+          :do (cond (opener ;; found opener
+                     ;; TODO
+                     )
+                    (t ;; not found opener
+                     (setf openers-bottom (prev current-position))
+                     (unless (delimiter-opener-p current-position)
+                       (remove-delimiter parser current-position))
+                     (setf current-potision (delmiter-next current-position))))
+          :finally (remove-all-delimiter-above parser delimiter))))
+

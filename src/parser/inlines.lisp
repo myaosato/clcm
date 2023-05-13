@@ -8,27 +8,33 @@
            :push-delimiter
            :search-delimiter
            :remove-delimiter
+           :remove-all-delimiters-above
            :update-pointer
            :inactivate-before
            ; parser slots
            :parser-lines
            :parser-inlines
+           :parser-delimiters-bottom
            ; delimiter slots
            :delimiter-is-active
            :delimiter-type
-           :delimiter-content))
+           :delimiter-content
+           :delimiter-next
+           :delimiter-prev
+           :delimiter-opener-p
+           :delimiter-closer-p))
 (in-package :clcm/parser/inlines)
 
 ; delimiter stack
 (defclass delimiter ()
-  ((next           :initform nil                     :accessor next)
-   (prev           :initform nil                     :accessor prev)
+  ((next           :initform nil                     :accessor next :reader delimiter-next)
+   (prev           :initform nil                     :accessor prev :reader delimiter-prev)
    (is-active      :initform t                       :accessor delimiter-is-active)
    (delimiter-type :initarg :type                    :accessor delimiter-type)
    (pointer        :initarg :pointer                 :accessor delimiter-pointer)
    (number-of      :initarg :number-of :initform 1   :accessor number-of)
-   (is-opener      :initarg :is-opener :initform t   :accessor is-opener)
-   (is-closer      :initarg :is-closer :initform nil :accessor is-closer)))
+   (is-opener      :initarg :is-opener :initform t   :reader   delimiter-opener-p)
+   (is-closer      :initarg :is-closer :initform nil :reader   delimiter-closer-p)))
 
 (defun delimiter-content (delimiter)
   ;;
@@ -41,7 +47,8 @@
   ((lines     :initarg :lines      :accessor parser-lines)
    (inlines   :initarg :inlines    :accessor parser-inlines)
    (pointer   :initarg :pointer    :accessor parser-pointer)
-   (delimters :initarg :delimiters :accessor parser-delimiters)))
+   (delimters :initarg :delimiters :accessor parser-delimiters)
+   (bottom    :initarg :bottom     :accessor parser-delimiters-bottom)))
 
 (defun make-inline-parser (lines)
   (let ((inlines (list nil)))
@@ -49,7 +56,8 @@
                    :lines lines
                    :inlines inlines
                    :pointer inlines
-                   :delimiters nil)))
+                   :delimiters nil
+                   :bottom nil)))
 
 ;; push as parsed
 (defun push-parsed (parser parsed)
@@ -67,6 +75,8 @@
     (when stack
       (setf (prev delimiter) stack)
       (setf (next stack) delimiter))
+    (unless (parser-delimiters-bottom parser)
+      (setf (parser-delimiters-bottom parser) delimiter))
     (setf (parser-delimiters parser) delimiter)))
 
 ;; return first found delimiter that has one of specified types.
@@ -83,7 +93,16 @@
     (when prev (setf (next prev) next))
     (when next (setf (prev next) prev)))
   (when (eq delimiter (parser-delimiters parser))
-    (setf (parser-delimiters parser) (prev delimiter))))
+    (setf (parser-delimiters parser) (prev delimiter)))
+  (when (eq delimiter (parser-delimiters-bottom parser))
+    (setf (parser-delimiters-bottom parser) nil)))
+
+(defun remove-all-delimiters-above (parser delimiter)
+  (cond (delimiter
+         (setf (next delimiter) nil))
+        (t
+         (setf (parser-delimiters parser) nil)
+         (setf (parser-delimiters-bottom parser) nil))))
 
 ;; update parser pointer with delimiter pointer
 (defun update-pointer (parser delimiter)

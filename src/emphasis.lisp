@@ -4,6 +4,7 @@
                 :scan-to-strings)
   (:import-from :cl-unicode
                 :general-category)
+  (:export :check-emphasis)
   (:use :cl))
 (in-package :clcm/emphasis)
 
@@ -61,5 +62,15 @@
       (return-from check-emphasis nil))
     (let ((is-left-flanking (left-flanking-delimiter-run delimiter-run pos lines))
           (is-right-flanking (right-flanking-delimiter-run delimiter-run pos lines)))
-      ;; TODO
-      )))
+      (cond ((char= #\* (char delimiter-run 0))
+             (let ((is-opener is-left-flanking)
+                   (is-closer is-right-flanking))
+               `(:emphasis (:emphasis-* ,delimiter-run ,is-opener ,is-closer) ,(+ pos (length delimiter-run)))))
+            ((char= #\_ (char delimiter-run 0))
+             (let ((is-opener (and is-left-flanking 
+                                   (or (not is-right-flanking)
+                                       (preceded-by-unicode-punctuation-p pos lines))))
+                   (is-closer (and is-right-flanking 
+                                   (or (not is-right-flanking)
+                                       (followed-by-unicode-punctuation-p delimiter-run pos lines)))))
+               `(:emphasis (:emphasis-_ ,delimiter-run ,is-opener ,is-closer) ,(+ pos (length delimiter-run)))))))))
