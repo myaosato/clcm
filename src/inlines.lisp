@@ -25,6 +25,8 @@
                 :push-delimiter
                 :search-delimiter
                 :remove-delimiter
+                :remove-delimiters-between
+                :remove-all-delimiters-above
                 :update-pointer
                 :inactivate-before
                 :parser-lines
@@ -36,7 +38,9 @@
                 :delimiter-next
                 :delimiter-prev
                 :delimiter-closer-p
-                :delimiter-opener-p)
+                :delimiter-opener-p
+                :delimiter-length
+                :delimiter-pointer)
   (:export :parse-inline))
 (in-package :clcm/inlines)
 
@@ -60,18 +64,20 @@
                   (push-parsed parser parsed)
                   (remove-delimiter parser opener))
                  (t
-                  (if (closer (check-link-closer (parser-lines parser) (1+ pos)))
-                      (destructuring-bind (_ (dest title) next-pos) closer
-                        (declare (ignore _))
-                        (let ((type (delimiter-type opener))
-                              (content (delimiter-content opener)))
-                          (update-pointer parser opener)
-                          (push-parsed parser (list type content dest title))
-                          (remove-delimiter parser opener)
-                          (when (eq type :link)
-                            (inactivate-before opener :link))
-                          (setf next next-pos)))
-                      (push-parsed parser parsed))))))
+                  (let ((closer (check-link-closer (parser-lines parser) (1+ pos))))
+                    (if closer
+                        (destructuring-bind (_ (dest title) next-pos) closer
+                          (declare (ignore _))
+                          (let ((type (delimiter-type opener))
+                                (content (delimiter-content opener)))
+                            (update-pointer parser opener)
+                            (push-parsed parser (list type content dest title))
+                            (parse-emphasis parser opener)
+                            (remove-delimiter parser opener)
+                            (when (eq type :link)
+                              (inactivate-before opener :link))
+                            (setf next next-pos)))
+                        (push-parsed parser parsed)))))))
         (t 
          (push-parsed parser parsed)))
   next)
@@ -101,6 +107,7 @@
           :do (incf pos)
           :finally (when (/= pos done)
                      (push-parsed parser (subseq lines done pos))))
+    (parse-emphasis parser)
     (cdr (parser-inlines parser))))
 
 
@@ -120,24 +127,53 @@
            (eq (delmiter-type delimiter) type))
       delimiter
       (find-opener (delimiter-prev delmiter) openers-bottom type)))
+(defun reduce-delimiter (parser opener closer length)
+  ;; return next closer
+  (decf (delimiter-length opener) length)
+  (decf (delimiter-length closer) length)
+  (cond ((< 0 (delimiter-length opener))
+         (setf (cadr (delimiter-pointer opener))
+               (subseq (delimiter-pointer opener) 0 (- (length (delimiter-pointer opener) length)))))
+        (t
+         (setf (cdr (delimiter-pointer opener)) (cddr (delimiter-pointer opener)))
+         (remove-delimiter parser opener)))
+  (cond ((< 0 (delimiter-length closer))
+         (setf (cadr (delimiter-pointer closer))
+               (subseq (delimiter-pointer closer) 0 (- (length (delimiter-pointer closer) length))))
+         closer)
+        (t
+         (setf (cdr (delimiter-pointer closer)) (cddr (delimiter-pointer closer)))
+         (remove-delimiter parser closer)
+         (delimiter-next closer))))
 (defun parse-emphasis (parser &optional (bottom nil)) ;; TODO design return value
   (unless (parser-delimiters-bottom parser)
     (return-from parse-emphasis))
-  (let ((current-position (if bottom
-                              (delimiter-next bottom)
-                              (parser-delimiters-bottom parser))))
+  (let ((closer (if bottom
+                    (delimiter-next bottom)
+                    (parser-delimiters-bottom parser))))
         (openers-bottom bottom))
     (loop :with opener
-          :while current-position
-          :do (setf current-position (find-closer current-position))
-          :do (setf opener (find-opener (delimiter-prev current-position) openers-bottom type))
+          :while closer
+          :do (setf closer (find-closer closer))
+          :do (setf opener (find-opener (delimiter-prev closer) openers-bottom type))
           :do (cond (opener ;; found opener
-                     ;; TODO
-                     )
+                     (let ((is-strong (and (<= 2 (delimiter-length closer))
+                                           (<= 2 (delimiter-length opener))))
+                           (new-element-pointer (cons nil nil))
+                           (next-element-pointer (cdr (delimiter-pointer closer))))
+                       (setf (cdr (delimiter-pointer closer)) nil)
+                       (setf (car new-element)
+                             (list (if is-strong :strong-emphasis :emphasis)
+                                   (cddr (delimiter-pointer opener))))
+                       (setf (cddr (delimiter-pointer opener)) new-element-pointer)
+                       (setf (cdr new-element-pointer) next-element-pointer)
+                       (setf (delimiter-pointer closer) new-element-pointer)
+                       (remove-delimiters-between parser opener closer)
+                       (setf closer (reduce-delimiter parser operner closer (if is-strong 2 1)))))
                     (t ;; not found opener
-                     (setf openers-bottom (prev current-position))
-                     (unless (delimiter-opener-p current-position)
-                       (remove-delimiter parser current-position))
-                     (setf current-potision (delmiter-next current-position))))
-          :finally (remove-all-delimiter-above parser delimiter))))
+                     (setf openers-bottom (prev closer))
+                     (unless (delimiter-opener-p closer)
+                       (remove-delimiter parser closer))
+                     (setf closer (delmiter-next closer))))
+          :finally (remove-all-delimiter-above parser delimiter)))
 

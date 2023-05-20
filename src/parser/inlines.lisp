@@ -8,6 +8,7 @@
            :push-delimiter
            :search-delimiter
            :remove-delimiter
+           :remove-delimiters-bwtween
            :remove-all-delimiters-above
            :update-pointer
            :inactivate-before
@@ -22,7 +23,9 @@
            :delimiter-next
            :delimiter-prev
            :delimiter-opener-p
-           :delimiter-closer-p))
+           :delimiter-closer-p
+           :delimiter-length
+           :delimiter-pointer))
 (in-package :clcm/parser/inlines)
 
 ; delimiter stack
@@ -32,7 +35,7 @@
    (is-active      :initform t                       :accessor delimiter-is-active)
    (delimiter-type :initarg :type                    :accessor delimiter-type)
    (pointer        :initarg :pointer                 :accessor delimiter-pointer)
-   (number-of      :initarg :number-of :initform 1   :accessor number-of)
+   (number-of      :initarg :number-of :initform 1   :accessor delimiter-length)
    (is-opener      :initarg :is-opener :initform t   :reader   delimiter-opener-p)
    (is-closer      :initarg :is-closer :initform nil :reader   delimiter-closer-p)))
 
@@ -96,6 +99,11 @@
     (setf (parser-delimiters parser) (prev delimiter)))
   (when (eq delimiter (parser-delimiters-bottom parser))
     (setf (parser-delimiters-bottom parser) nil)))
+
+(defun remove-delimiters-between (parser opener closer)
+  (unless (eq opener closer)
+    (remove-delimiter parser (prev closer))
+    (remove-delimiter-between parser opener (prev closer))))
 
 (defun remove-all-delimiters-above (parser delimiter)
   (cond (delimiter
