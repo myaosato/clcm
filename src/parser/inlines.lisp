@@ -1,7 +1,5 @@
 (defpackage :clcm/parser/inlines
   (:use :cl)
-  (:import-from :uiop
-                :if-let)
   (:export :make-inline-parser
            ; parser handlers
            :push-parsed
@@ -84,10 +82,11 @@
 
 ;; return first found delimiter that has one of specified types.
 (defun search-delimiter (parser &rest types)
-  (if-let (delimiter (parser-delimiters parser))
-    (if (find (delimiter-type delimiter) types)
-        delimiter
-        (apply #'search-delimiter (prev delimiter) types))))
+  (labels ((%search-delimiter (delimiter &rest types)
+             (if (and delimiter (find (delimiter-type delimiter) types))
+                 delimiter
+                 (apply #'%search-delimiter (prev delimiter) types))))
+      (apply #'%search-delimiter (parser-delimiters parser) types)))
 
 ;;
 (defun remove-delimiter (parser delimiter)
@@ -102,8 +101,9 @@
 
 (defun remove-delimiters-between (parser opener closer)
   (unless (eq opener closer)
-    (remove-delimiter parser (prev closer))
-    (remove-delimiter-between parser opener (prev closer))))
+    (let ((prev (prev closer)))
+      (remove-delimiter parser prev)
+      (remove-delimiters-between parser opener prev))))
 
 (defun remove-all-delimiters-above (parser delimiter)
   (cond (delimiter

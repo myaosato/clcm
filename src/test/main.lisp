@@ -18,7 +18,13 @@
                  '((:IMAGE ("foo") "bar" "baz"))))
   (assert (equal (clcm/inlines:parse-inline "[![foo](bar 'baz')](hoge 'piyo')")
                  '((:LINK ((:IMAGE ("foo") "bar" "baz")) "hoge" "piyo"))))
-
-
+  (assert (equal (clcm/inlines:parse-inline "**hoge**")
+                 '((:STRONG-EMPHASIS ("hoge")))))
+  (assert (equal (clcm/inlines:parse-inline "*hoge*")
+                 '((:EMPHASIS ("hoge")))))
+  (assert (equal (clcm/inlines:parse-inline "[*hoge*](https://example.com)")
+                 '((:LINK ((:EMPHASIS ("hoge"))) "https://example.com" NIL))))
+  (assert (equal (clcm/inlines:parse-inline "[*hoge*](https://example.com 'foo')")
+                 '((:LINK ((:EMPHASIS ("hoge"))) "https://example.com" "foo"))))
   )
 
