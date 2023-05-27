@@ -133,23 +133,28 @@
   ;; return next closer
   (decf (delimiter-length opener) length)
   (decf (delimiter-length closer) length)
-  (cond ((< 0 (delimiter-length opener))
-         (setf (car (delimiter-pointer opener))
-               (subseq (car (delimiter-pointer opener))
-                       0
-                       (- (length (car (delimiter-pointer opener))) length))))
-        (t
-         (setf (cdr (delimiter-pointer-prev opener)) (cdr (delimiter-pointer opener)))
-         (remove-delimiter parser opener)))
+  ;; 順番が大事 closerから処理しないとopener側が更新前の情報を見てしまう。
+  ;; (closer側では、端点になってしまっている場合に、delimiter-pointerはconsではなくnilとなるため)
   (cond ((< 0 (delimiter-length closer))
          (setf (car (delimiter-pointer closer))
-               (subseq (car (delimiter-pointer closer))
-                       0
-                       (- (length (car (delimiter-pointer closer))) length)))
-         closer)
+               (subseq (car (delimiter-pointer closer)) 0 (delimiter-length closer))))
         (t
-         (setf (cdr (delimiter-pointer-prev closer)) (cdr (delimiter-pointer closer)))
-         (remove-delimiter parser closer)
+         (cond ((null (cdr (delimiter-pointer closer)))
+                (setf (cdr (delimiter-pointer-prev closer)) nil)
+                (setf (delimiter-pointer closer) nil))
+               (t
+                (setf (car (delimiter-pointer closer)) (cadr (delimiter-pointer closer)))
+                (setf (cdr (delimiter-pointer closer)) (cddr (delimiter-pointer closer)))))
+         (remove-delimiter parser closer)))
+  (cond ((< 0 (delimiter-length opener))
+         (setf (car (delimiter-pointer opener))
+               (subseq (car (delimiter-pointer opener)) 0 (delimiter-length opener))))
+        (t
+         (setf (car (delimiter-pointer opener)) (cadr (delimiter-pointer opener)))
+         (setf (cdr (delimiter-pointer opener)) (cddr (delimiter-pointer opener)))
+         (remove-delimiter parser opener)))
+  (cond ((< 0 (delimiter-length closer))
+         closer
          (delimiter-next closer))))
 (defun parse-emphasis (parser &optional (bottom nil)) ;; TODO design return value
   (unless (parser-delimiters-bottom parser)

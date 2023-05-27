@@ -26,5 +26,8 @@
                  '((:LINK ((:EMPHASIS ("hoge"))) "https://example.com" NIL))))
   (assert (equal (clcm/inlines:parse-inline "[*hoge*](https://example.com 'foo')")
                  '((:LINK ((:EMPHASIS ("hoge"))) "https://example.com" "foo"))))
+  (assert (equal (clcm/inlines:parse-inline "***hoge***")
+                 '((:EMPHASIS ((:STRONG-EMPHASIS ("hoge")))))))
   )
+          
 
