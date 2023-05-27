@@ -23,7 +23,8 @@
            :delimiter-opener-p
            :delimiter-closer-p
            :delimiter-length
-           :delimiter-pointer))
+           :delimiter-pointer
+           :delimiter-pointer-prev))
 (in-package :clcm/parser/inlines)
 
 ; delimiter stack
@@ -33,15 +34,16 @@
    (is-active      :initform t                       :accessor delimiter-is-active)
    (delimiter-type :initarg :type                    :accessor delimiter-type)
    (pointer        :initarg :pointer                 :accessor delimiter-pointer)
+   (pointer-prev   :initarg :pointer-prev            :accessor delimiter-pointer-prev)
    (number-of      :initarg :number-of :initform 1   :accessor delimiter-length)
    (is-opener      :initarg :is-opener :initform t   :reader   delimiter-opener-p)
    (is-closer      :initarg :is-closer :initform nil :reader   delimiter-closer-p)))
 
 (defun delimiter-content (delimiter)
   ;;
-  ;; (delimiter-pointer delimiter) := (previous-last "[" "foo" ... ) 
-  ;;                                  or (previous-last "![" "foo" ... )
-  (cddr (delimiter-pointer delimiter)))
+  ;; (delimiter-pointer delimiter) := ("[" "foo" ... )
+  ;;                                  or ("![" "foo" ... )
+  (cdr (delimiter-pointer delimiter)))
 
 ; inline parser
 (defclass inline-parser ()
@@ -62,15 +64,16 @@
 
 ;; push as parsed
 (defun push-parsed (parser parsed)
-  (let ((previous (parser-pointer parser)))
-    (setf (cdr (parser-pointer parser)) (list parsed))
-    (setf (parser-pointer parser) (cdr (parser-pointer parser)))
-    previous))
+  (let ((pointer (list parsed)))
+    (setf (cdr (parser-pointer parser)) pointer)
+    (setf (parser-pointer parser) pointer)))
 
 ;; push as parsed and push as delimiter
 (defun push-delimiter (parser parsed type &key (number-of 1) (is-opener t) (is-closer nil))
   (let ((delimiter (make-instance 'delimiter
-                                  :pointer (push-parsed parser parsed) :type type
+                                  :pointer-prev (parser-pointer parser)
+                                  :pointer (push-parsed parser parsed)
+                                  :type type
                                   :number-of number-of :is-opener is-opener :is-closer is-closer))
         (stack (parser-delimiters parser)))
     (when stack
@@ -113,8 +116,8 @@
          (setf (parser-delimiters-bottom parser) nil))))
 
 ;; update parser pointer with delimiter pointer
-(defun update-pointer (parser delimiter)
-  (setf (parser-pointer parser) (delimiter-pointer delimiter)))
+(defun update-pointer (parser pointer)
+  (setf (parser-pointer parser) pointer))
 
 ;;
 (defun inactivate-before (delimiter &rest types)
