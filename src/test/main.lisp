@@ -28,6 +28,14 @@
                  '((:LINK ((:EMPHASIS ("hoge"))) "https://example.com" "foo"))))
   (assert (equal (clcm/inlines:parse-inline "***hoge***")
                  '((:EMPHASIS ((:STRONG-EMPHASIS ("hoge")))))))
+  (assert (equal (clcm/inlines:parse-inline "*foo bar*")
+                 '((:EMPHASIS ("foo bar")))))
+  (assert (equal (clcm/inlines:parse-inline "a * foo bar*")
+                 '("a " "*" " foo bar" "*")))
+  (assert (equal (clcm/inlines:parse-inline "5*6*78")
+                 '("5" (:EMPHASIS ("6")) "78")))
+  (assert (equal (clcm/inlines:parse-inline "*(*foo*)*")
+                 '((:EMPHASIS ("(")) "foo" (:EMPHASIS (")")))))
   )
           
 

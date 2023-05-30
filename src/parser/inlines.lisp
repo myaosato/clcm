@@ -103,7 +103,7 @@
     (setf (parser-delimiters-bottom parser) nil)))
 
 (defun remove-delimiters-between (parser opener closer)
-  (unless (eq opener closer)
+  (unless (eq (next opener) closer)
     (let ((prev (prev closer)))
       (remove-delimiter parser prev)
       (remove-delimiters-between parser opener prev))))

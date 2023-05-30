@@ -153,9 +153,9 @@
          (setf (car (delimiter-pointer opener)) (cadr (delimiter-pointer opener)))
          (setf (cdr (delimiter-pointer opener)) (cddr (delimiter-pointer opener)))
          (remove-delimiter parser opener)))
-  (cond ((< 0 (delimiter-length closer))
-         closer
-         (delimiter-next closer))))
+  (if (< 0 (delimiter-length closer))
+      closer
+      (delimiter-next closer)))
 (defun parse-emphasis (parser &optional (bottom nil)) ;; TODO design return value
   (unless (parser-delimiters-bottom parser)
     (return-from parse-emphasis))
