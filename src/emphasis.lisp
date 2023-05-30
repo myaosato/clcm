@@ -52,13 +52,17 @@
       candidate)))
 
 (defun followed-by-unicode-whitespace-p (delimiter-run pos lines)
-  (unicode-whitespace-character-p (char? lines (+ (length delimiter-run) pos))))
+  (or (= (+ (length delimiter-run) pos) (length lines))
+      ;; the beginning and the end of the line count as Unicode whitespace
+      (unicode-whitespace-character-p (char? lines (+ (length delimiter-run) pos)))))
 
 (defun followed-by-unicode-punctuation-p (delimiter-run pos lines)
   (unicode-punctuation-character-p (char? lines (+ (length delimiter-run) pos))))
 
 (defun preceded-by-unicode-whitespace-p (pos lines)
-  (unicode-whitespace-character-p (char? lines (1- pos))))
+  (or (= pos 0)
+      ;; the beginning and the end of the line count as Unicode whitespace
+      (unicode-whitespace-character-p (char? lines (1- pos)))))
 
 (defun preceded-by-unicode-punctuation-p (pos lines)
   (unicode-punctuation-character-p (char? lines (1- pos))))
